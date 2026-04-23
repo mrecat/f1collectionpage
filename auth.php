@@ -2,10 +2,6 @@
 require_once __DIR__ . '/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
-    // Configuración robusta de sesiones para entornos cloud
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.use_strict_mode', 1);
-    ini_set('session.cookie_samesite', 'Lax');
     session_start();
 }
 
@@ -29,12 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['f1_login'])) {
         session_regenerate_id(true);
         $_SESSION['f1_admin']      = true;
         $_SESSION['f1_admin_last'] = time();
-        // Redirect relativo, funciona en cualquier hosting/dominio
-        $redirect = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
-                  . '://' . $_SERVER['HTTP_HOST']
-                  . strtok($_SERVER['REQUEST_URI'], '?')
-                  . '?page=collection';
-        header('Location: ' . $redirect);
+        header('Location: ?page=collection');
         exit;
     } else {
         $_SESSION['f1_login_error'] = true;
@@ -44,11 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['f1_login'])) {
 if (isset($_GET['logout'])) {
     $_SESSION = [];
     session_destroy();
-    $redirect = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
-              . '://' . $_SERVER['HTTP_HOST']
-              . strtok($_SERVER['REQUEST_URI'], '?')
-              . '?page=collection';
-    header('Location: ' . $redirect);
+    header('Location: ?page=collection');
     exit;
 }
 
