@@ -139,6 +139,9 @@ foreach ($d['mosaic'] as $m) {
       <?php if ($latest['maker']): ?>
         <div class="home-latest-maker">🏭 <?= htmlspecialchars($latest['maker']) ?></div>
       <?php endif; ?>
+      <?php if ($latest['created_at']): ?>
+        <div class="home-latest-date">📅 Incorporado el <?= date('d/m/Y', strtotime($latest['created_at'])) ?></div>
+      <?php endif; ?>
       <?php if ($latest['note']): ?>
         <div class="home-latest-note">"<?= htmlspecialchars($latest['note']) ?>"</div>
       <?php endif; ?>

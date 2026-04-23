@@ -561,7 +561,7 @@ function getHomeData(): array {
 
     // Último auto agregado (mayor id con imagen)
     $latest = $db->query("
-        SELECT c.id, c.year, c.team, c.model, c.driver, c.maker, c.note,
+        SELECT c.id, c.year, c.team, c.model, c.driver, c.maker, c.note, c.created_at,
                (SELECT path FROM car_images ci2 WHERE ci2.car_id = c.id
                 ORDER BY ci2.sort_order ASC, ci2.id ASC LIMIT 1) as thumb
         FROM cars c

@@ -1383,6 +1383,13 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   font-size: 14px;
   color: var(--muted);
 }
+.home-latest-date {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 6px;
+  letter-spacing: 0.03em;
+}
 .home-latest-note {
   font-size: 14px;
   color: var(--muted);
