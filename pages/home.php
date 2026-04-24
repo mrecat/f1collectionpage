@@ -47,7 +47,8 @@ foreach ($d['mosaic'] as $m) {
   <div class="home-hero-overlay"></div>
   <div class="home-hero-content">
     <div class="home-hero-eyebrow">🏁 MUSEO VIRTUAL DE FÓRMULA 1</div>
-    <h1 class="home-hero-title">UNA COLECCIÓN<br><span>DE OTRO MUNDO</span></h1>
+    <!--<h1 class="home-hero-title">UNA COLECCIÓN<br><span>DE OTRO MUNDO</span></h1> -->
+    <h1 class="home-hero-title">Leyendas<br><span>en Miniatura</span></h1>
     <p class="home-hero-sub">
       <?= $stats['total'] ?> autos de Fórmula 1 y algunos otros en escala, desde <?= $stats['years']['mn'] ?> hasta <?= $stats['years']['mx'] ?>.<br>
       Cada pieza tiene su historia. Cada foto, su momento.
