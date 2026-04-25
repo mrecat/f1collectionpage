@@ -4,38 +4,11 @@ $hero   = $d['hero'];
 $stats  = $d['stats'];
 $latest = $d['latest'] ?? null;
 
-// JSON del último auto para el modal
-$latestJson = '';
-if ($latest) {
-    $latestJson = htmlspecialchars(json_encode([
-        'id'     => $latest['id'],
-        'year'   => $latest['year'],
-        'team'   => $latest['team'],
-        'model'  => $latest['model'],
-        'driver' => $latest['driver'],
-        'maker'  => $latest['maker'],
-        'note'   => $latest['note'],
-        'img'    => $latest['thumb'] ?? '',
-        'imgs'   => [$latest['thumb'] ?? ''],
-        'admin'  => false,
-    ]), ENT_QUOTES);
-}
+$latestSlug = $latest ? htmlspecialchars(makeCarSlug($latest)) : '';
 
-// JSON de cada auto del mosaico para el modal
-$mosaicJsons = [];
+$mosaicSlugs = [];
 foreach ($d['mosaic'] as $m) {
-    $mosaicJsons[] = htmlspecialchars(json_encode([
-        'id'     => $m['id'],
-        'year'   => $m['year'],
-        'team'   => $m['team'],
-        'model'  => $m['model'],
-        'driver' => $m['driver'],
-        'maker'  => '',
-        'note'   => '',
-        'img'    => $m['thumb'] ?? '',
-        'imgs'   => [$m['thumb'] ?? ''],
-        'admin'  => false,
-    ]), ENT_QUOTES);
+    $mosaicSlugs[] = htmlspecialchars(makeCarSlug($m));
 }
 ?>
 
@@ -98,7 +71,7 @@ foreach ($d['mosaic'] as $m) {
   </div>
   <div class="home-mosaic">
     <?php foreach ($d['mosaic'] as $i => $m): ?>
-    <div class="home-mosaic-item" onclick="openModal(<?= $mosaicJsons[$i] ?>)">
+    <a href="?page=car&slug=<?= $mosaicSlugs[$i] ?>" class="home-mosaic-item">
       <img src="<?= htmlspecialchars($m['thumb']) ?>" alt="<?= htmlspecialchars($m['model']) ?>">
       <div class="home-mosaic-overlay">
         <span class="home-mosaic-year"><?= $m['year'] ?></span>
@@ -108,7 +81,7 @@ foreach ($d['mosaic'] as $m) {
         <?php endif; ?>
         <span class="home-mosaic-cta">Ver detalle →</span>
       </div>
-    </div>
+    </a>
     <?php endforeach; ?>
   </div>
 </div>
@@ -122,14 +95,14 @@ foreach ($d['mosaic'] as $m) {
     <a href="?page=collection" class="home-section-link">Ver toda la colección →</a>
   </div>
   <div class="home-latest-card">
-    <div class="home-latest-img" <?= $latestJson ? "onclick=\"openModal($latestJson)\"" : '' ?>>
+    <a href="?page=car&slug=<?= $latestSlug ?>" class="home-latest-img">
       <?php if ($latest['thumb']): ?>
         <img src="<?= htmlspecialchars($latest['thumb']) ?>" alt="<?= htmlspecialchars($latest['model']) ?>">
       <?php else: ?>
         <span class="home-latest-noimg">🏎️</span>
       <?php endif; ?>
       <span class="home-latest-badge">NUEVO</span>
-    </div>
+    </a>
     <div class="home-latest-body">
       <div class="home-latest-year"><?= $latest['year'] ?></div>
       <div class="home-latest-team"><?= htmlspecialchars($latest['team']) ?></div>
@@ -146,8 +119,8 @@ foreach ($d['mosaic'] as $m) {
       <?php if ($latest['note']): ?>
         <div class="home-latest-note">"<?= htmlspecialchars($latest['note']) ?>"</div>
       <?php endif; ?>
-      <?php if ($latestJson): ?>
-        <button class="btn btn-primary home-latest-btn" onclick="openModal(<?= $latestJson ?>)">🔍 VER DETALLE</button>
+      <?php if ($latestSlug): ?>
+        <a href="?page=car&slug=<?= $latestSlug ?>" class="btn btn-primary home-latest-btn">🔍 VER DETALLE</a>
       <?php endif; ?>
     </div>
   </div>
@@ -164,30 +137,4 @@ foreach ($d['mosaic'] as $m) {
   </div>
 </div>
 
-<!-- Modal (reutiliza funciones de app.js) -->
-<div class="modal-overlay" id="carModal" onclick="closeModalOnBg(event)">
-  <button class="modal-car-prev" id="modalCarPrev" style="display:none">&#8249;</button>
-  <div class="modal-box">
-    <div class="modal-img-wrap" id="modalImgWrap">
-      <button class="modal-close-btn" onclick="closeModal()">✕</button>
-      <span class="modal-no-img" id="modalNoImg">🏎️</span>
-      <div id="modalGallery" style="display:none;width:100%;position:relative;">
-        <img id="modalImg" src="" alt="" style="max-width:100%;max-height:360px;object-fit:contain;display:block;margin:0 auto;">
-        <div class="gallery-nav" id="galleryNav" style="display:none;">
-          <button class="gallery-prev" onclick="galleryPrev()">&#8249;</button>
-          <span class="gallery-counter" id="galleryCounter"></span>
-          <button class="gallery-next" onclick="galleryNext()">&#8250;</button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="modal-year"   id="modalYear"></div>
-      <div class="modal-title"  id="modalTitle"></div>
-      <div class="modal-driver" id="modalDriver"></div>
-      <div class="modal-note"   id="modalNote" style="display:none"></div>
-      <div class="modal-meta"   id="modalMeta"></div>
-      <div class="modal-footer" id="modalFooter"></div>
-    </div>
-  </div>
-  <button class="modal-car-next" id="modalCarNext" style="display:none">&#8250;</button>
-</div>
+

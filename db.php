@@ -311,7 +311,7 @@ function getCarById(int $id): ?array {
 
 // Genera el slug de un auto: "ferrari-f2004-schumacher-2004"
 function makeCarSlug(array $car): string {
-    $raw = $car['year'] . '-' . $car['team'] . '-' . $car['model'] . '-' . $car['driver'];
+    $raw = $car['year'] . '-' . $car['team'] . '-' . $car['model'] . '-' . $car['driver'] . '-' . $car['id'];
     $slug = mb_strtolower($raw, 'UTF-8');
     // Reemplazar caracteres con tilde
     $from = ['á','é','í','ó','ú','ü','ñ','Á','É','Í','Ó','Ú','Ü','Ñ'];
@@ -322,9 +322,19 @@ function makeCarSlug(array $car): string {
     return trim($slug, '-');
 }
 
-// Busca un auto por slug (compara contra todos los ids activos)
+// Busca un auto por slug — extrae el ID del final del slug para lookup directo,
+// con fallback a comparación completa para compatibilidad con slugs viejos sin ID.
 function getCarBySlug(string $slug): ?array {
-    $db   = getDB();
+    $db = getDB();
+    // Extraer ID del final del slug (formato: ...-{id})
+    if (preg_match('/-(\d+)$/', $slug, $m)) {
+        $id  = (int)$m[1];
+        $car = $db->query("SELECT * FROM cars WHERE id = $id")->fetch();
+        if ($car && makeCarSlug($car) === $slug) {
+            return $car;
+        }
+    }
+    // Fallback: comparación completa (compatibilidad con slugs viejos sin ID)
     $cars = $db->query("SELECT * FROM cars ORDER BY id ASC")->fetchAll();
     foreach ($cars as $car) {
         if (makeCarSlug($car) === $slug) {
@@ -400,6 +410,10 @@ function saveCar(array $data, ?int $id = null): void {
         if (array_key_exists('is_champion', $data)) {
             $sql .= ", is_champion=?";
             $params[] = (int)$data['is_champion'];
+        }
+        if (array_key_exists('is_team_champion', $data)) {
+            $sql .= ", is_team_champion=?";
+            $params[] = (int)$data['is_team_champion'];
         }
         $sql .= " WHERE id=?";
         $params[] = $id;

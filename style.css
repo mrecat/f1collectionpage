@@ -1092,6 +1092,8 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   transition: transform .2s, border-color .2s, box-shadow .2s;
   display: flex;
   flex-direction: column;
+  text-decoration: none;
+  color: inherit;
 }
 .coll-card:hover {
   transform: translateY(-4px);
@@ -1311,6 +1313,8 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   overflow: hidden;
   background: var(--bg3);
   cursor: pointer;
+  display: block;
+  text-decoration: none;
 }
 .home-latest-img img {
   width: 100%;
@@ -1630,7 +1634,7 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   font-weight: 900;
   color: var(--red);
   letter-spacing: 3px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 .car-detail-team {
   font-family: 'Orbitron', monospace;
@@ -1774,11 +1778,19 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
 .car-detail-note p  { font-size: 18px; }
 
 /* Trofeo campeón */
+.car-detail-year-block {
+  margin-bottom: 10px;
+}
+.car-detail-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 4px;
+}
 .car-champion-trophy {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-left: 14px;
   background: linear-gradient(135deg, #ffc906, #e6a800);
   color: #1a1000;
   font-family: 'Orbitron', monospace;
@@ -1787,13 +1799,32 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   letter-spacing: 2px;
   padding: 5px 14px;
   border-radius: 20px;
-  vertical-align: middle;
   box-shadow: 0 2px 12px rgba(255,201,6,.45);
   animation: trophyGlow 3s ease-in-out infinite;
 }
 @keyframes trophyGlow {
   0%, 100% { box-shadow: 0 2px 12px rgba(255,201,6,.45); }
-  50%       { box-shadow: 0 4px 22px rgba(255,201,6,.8); }
+  50%       { box-shadow: 0 4px 22px rgba(255,201,6,.85); }
+}
+
+.car-team-champion-trophy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #4fc3f7, #0288d1);
+  color: #001a2e;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(2,136,209,.45);
+  animation: teamTrophyGlow 3s ease-in-out infinite;
+}
+@keyframes teamTrophyGlow {
+  0%, 100% { box-shadow: 0 2px 12px rgba(2,136,209,.45); }
+  50%       { box-shadow: 0 4px 22px rgba(2,136,209,.85); }
 }
 
 /* Sección desempeño */
@@ -1802,7 +1833,7 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   border: 1px solid var(--border);
   border-left: 3px solid var(--red);
   border-radius: var(--radius);
-  padding: 20px 22px;
+  padding: 24px 28px;
   margin-bottom: 24px;
 }
 .car-detail-perf-header {
@@ -2248,4 +2279,18 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   text-align: right;
   max-width: 260px;
   line-height: 1.4;
+}
+
+/* Variante azul — Campeón de Constructores */
+.champion-toggle:hover .champion-toggle-box--blue {
+  border-color: #0288d1;
+  background: rgba(2,136,209,.05);
+}
+.champion-toggle input:checked ~ .champion-toggle-box--blue {
+  border-color: #0288d1;
+  background: rgba(2,136,209,.08);
+  box-shadow: 0 0 0 3px rgba(2,136,209,.18);
+}
+.champion-toggle input:checked ~ .champion-toggle-box--blue .champion-toggle-text {
+  color: #4fc3f7;
 }

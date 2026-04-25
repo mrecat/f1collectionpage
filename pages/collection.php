@@ -19,26 +19,9 @@ $admin   = isAdmin();
 
 
 
-// Lista completa de autos en el orden activo — para navegación del modal
-$allCarsNav = array_map(fn($c) => [
-    'id'     => $c['id'],
-    'year'   => $c['year'],
-    'team'   => $c['team'],
-    'model'  => $c['model'],
-    'driver' => $c['driver'],
-    'maker'  => $c['maker'],
-    'note'   => $c['note'],
-    'img'    => getFirstImage((int)$c['id']) ? htmlspecialchars(getFirstImage((int)$c['id'])) : '',
-    'imgs'   => array_map(fn($i) => htmlspecialchars($i['path']), getCarImages((int)$c['id'])),
-    'admin'  => $admin,
-], $cars);
 ?>
 
 <div class="page-title">🏎️ MODELOS <span> REALES Y A ESCALA</span></div>
-
-<script>
-window._carList = <?= json_encode($allCarsNav) ?>;
-</script>
 
 <!-- <div class="page-title">🏎️ LA <span>COLECCIÓN</span></div> -->
 
@@ -136,27 +119,15 @@ window._carList = <?= json_encode($allCarsNav) ?>;
       <?php foreach ($cars as $car): ?>
       <?php
         $imgPath = getFirstImage((int)$car['id']) ? htmlspecialchars(getFirstImage((int)$car['id'])) : '';
-        $allImgs = array_map(fn($i) => htmlspecialchars($i['path']), getCarImages((int)$car['id']));
-        $carJson = htmlspecialchars(json_encode([
-          'id'     => $car['id'],
-          'year'   => $car['year'],
-          'team'   => $car['team'],
-          'model'  => $car['model'],
-          'driver' => $car['driver'],
-          'maker'  => $car['maker'],
-          'note'   => $car['note'],
-          'img'    => $imgPath,
-          'imgs'   => $allImgs,
-          'admin'  => $admin,
-        ]), ENT_QUOTES);
       ?>
       <tr>
 
         <!-- Miniatura -->
         <td>
           <?php if ($imgPath): ?>
-            <img src="<?= $imgPath ?>" class="car-thumb" alt="<?= htmlspecialchars($car['model']) ?>"
-                 onclick="openModal(<?= $carJson ?>)" title="Ver detalle">
+            <a href="?page=car&slug=<?= htmlspecialchars(makeCarSlug($car)) ?>">
+              <img src="<?= $imgPath ?>" class="car-thumb" alt="<?= htmlspecialchars($car['model']) ?>" title="Ver detalle">
+            </a>
           <?php elseif ($admin): ?>
             <a href="?page=edit&id=<?= $car['id'] ?>" class="no-img" title="Agregar foto">📷</a>
           <?php else: ?>
@@ -192,7 +163,7 @@ window._carList = <?= json_encode($allCarsNav) ?>;
         <td>
           <div class="actions">
             <?php if ($imgPath): ?>
-              <button class="btn btn-ghost btn-sm" onclick="openModal(<?= $carJson ?>)" title="Ver detalle">🔍</button>
+              <a href="?page=car&slug=<?= htmlspecialchars(makeCarSlug($car)) ?>" class="btn btn-ghost btn-sm" title="Ver detalle">🔍</a>
             <?php endif; ?>
             <a href="?page=edit&id=<?= $car['id'] ?>" class="btn btn-ghost btn-sm" title="Editar">✏️</a>
             <form method="post" action="action.php" style="display:inline"
@@ -217,21 +188,9 @@ window._carList = <?= json_encode($allCarsNav) ?>;
   <?php foreach ($cars as $car): ?>
   <?php
     $imgPath2 = getFirstImage((int)$car['id']) ? htmlspecialchars(getFirstImage((int)$car['id'])) : '';
-    $allImgs2 = array_map(fn($i) => htmlspecialchars($i['path']), getCarImages((int)$car['id']));
-    $carJson2 = htmlspecialchars(json_encode([
-      'id'     => $car['id'],
-      'year'   => $car['year'],
-      'team'   => $car['team'],
-      'model'  => $car['model'],
-      'driver' => $car['driver'],
-      'maker'  => $car['maker'],
-      'note'   => $car['note'],
-      'img'    => $imgPath2,
-      'imgs'   => $allImgs2,
-      'admin'  => $admin,
-    ]), ENT_QUOTES);
+    $carSlug2 = htmlspecialchars(makeCarSlug($car));
   ?>
-  <div class="coll-card" onclick="openModal(<?= $carJson2 ?>)">
+  <a href="?page=car&slug=<?= $carSlug2 ?>" class="coll-card">
     <div class="coll-card-img">
       <?php if ($imgPath2): ?>
         <img src="<?= $imgPath2 ?>" alt="<?= htmlspecialchars($car['model']) ?>">
@@ -240,7 +199,7 @@ window._carList = <?= json_encode($allCarsNav) ?>;
       <?php endif; ?>
       <span class="coll-card-year"><?= $car['year'] ?></span>
       <?php if ($admin): ?>
-        <a href="?page=edit&id=<?= $car['id'] ?>" class="coll-card-edit" onclick="event.stopPropagation()" title="Editar">✏️</a>
+        <button class="coll-card-edit" onclick="event.preventDefault();event.stopPropagation();window.location='?page=edit&id=<?= $car['id'] ?>'" title="Editar">✏️</button>
       <?php endif; ?>
     </div>
     <div class="coll-card-body">
@@ -250,9 +209,9 @@ window._carList = <?= json_encode($allCarsNav) ?>;
       <?php if ($car['note']): ?>
         <div class="coll-card-note"><?= htmlspecialchars($car['note']) ?></div>
       <?php endif; ?>
-      <a href="?page=car&slug=<?= htmlspecialchars(makeCarSlug($car)) ?>" class="coll-card-detail-link" onclick="event.stopPropagation()">Ver página →</a>
+      <span class="coll-card-detail-link">Ver página →</span>
     </div>
-  </div>
+  </a>
   <?php endforeach; ?>
 </div>
 <?php endif; ?>
@@ -308,30 +267,4 @@ function setView(v) {
 })();
 </script>
 
-<!-- ══ MODAL ══════════════════════════════════════ -->
-<div class="modal-overlay" id="carModal" onclick="closeModalOnBg(event)">
-  <button class="modal-car-prev" id="modalCarPrev" title="Auto anterior">&#8249;</button>
-  <div class="modal-box">
-    <div class="modal-img-wrap" id="modalImgWrap">
-      <button class="modal-close-btn" onclick="closeModal()">✕</button>
-      <span class="modal-no-img" id="modalNoImg">🏎️</span>
-      <div id="modalGallery" style="display:none;width:100%;position:relative;">
-        <img id="modalImg" src="" alt="" style="max-width:100%;max-height:360px;object-fit:contain;display:block;margin:0 auto;">
-        <div class="gallery-nav" id="galleryNav" style="display:none;">
-          <button class="gallery-prev" onclick="galleryPrev()">&#8249;</button>
-          <span class="gallery-counter" id="galleryCounter"></span>
-          <button class="gallery-next" onclick="galleryNext()">&#8250;</button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="modal-year" id="modalYear"></div>
-      <div class="modal-title" id="modalTitle"></div>
-      <div class="modal-driver" id="modalDriver"></div>
-      <div class="modal-note" id="modalNote" style="display:none"></div>
-      <div class="modal-meta" id="modalMeta"></div>
-      <div class="modal-footer" id="modalFooter"></div>
-    </div>
-  </div>
-  <button class="modal-car-next" id="modalCarNext" title="Auto siguiente">&#8250;</button>
-</div>
+

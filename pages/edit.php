@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'maker'       => trim($_POST['maker']       ?? ''),
         'collection'  => trim($_POST['collection']  ?? ''),
         'note'        => trim($_POST['note']        ?? ''),
-        'is_champion' => isset($_POST['is_champion']) ? 1 : 0,
+        'is_champion'      => isset($_POST['is_champion']) ? 1 : 0,
+        'is_team_champion' => isset($_POST['is_team_champion']) ? 1 : 0,
     ];
     if ($data['year'] && $data['team'] && $data['model']) {
         saveCar($data, $id);
@@ -133,8 +134,16 @@ $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
           <input type="checkbox" name="is_champion" value="1" <?= !empty($car['is_champion']) ? 'checked' : '' ?>>
           <span class="champion-toggle-box">
             <span class="champion-toggle-icon">🏆</span>
-            <span class="champion-toggle-text">CAMPEÓN MUNDIAL ESE AÑO</span>
+            <span class="champion-toggle-text">CAMPEÓN MUNDIAL DE PILOTOS</span>
             <span class="champion-toggle-sub">Activa el trofeo dorado en la página del auto y en las estadísticas</span>
+          </span>
+        </label>
+        <label class="champion-toggle" style="margin-top:10px;">
+          <input type="checkbox" name="is_team_champion" value="1" <?= !empty($car['is_team_champion']) ? 'checked' : '' ?>>
+          <span class="champion-toggle-box champion-toggle-box--blue">
+            <span class="champion-toggle-icon">🏗️</span>
+            <span class="champion-toggle-text">CAMPEÓN MUNDIAL DE CONSTRUCTORES</span>
+            <span class="champion-toggle-sub">Activa el badge azul de constructores en la página del auto</span>
           </span>
         </label>
       </div>

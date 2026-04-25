@@ -82,10 +82,17 @@ $nextSlug = $adj['next'] ? makeCarSlug($adj['next']) : null;
   <!-- ── Info ── -->
   <div class="car-detail-info">
 
-    <div class="car-detail-year">
-      <?= $car['year'] ?>
-      <?php if (!empty($car['is_champion'])): ?>
-        <span class="car-champion-trophy" title="🏆 Campeón Mundial <?= $car['year'] ?>">🏆 CAMPEÓN <?= $car['year'] ?></span>
+    <div class="car-detail-year-block">
+      <div class="car-detail-year"><?= $car['year'] ?></div>
+      <?php if (!empty($car['is_champion']) || !empty($car['is_team_champion'])): ?>
+      <div class="car-detail-badges">
+        <?php if (!empty($car['is_champion'])): ?>
+          <span class="car-champion-trophy" title="Campeón Mundial de Pilotos <?= $car['year'] ?>">🏆 CAMPEÓN PILOTO</span>
+        <?php endif; ?>
+        <?php if (!empty($car['is_team_champion'])): ?>
+          <span class="car-team-champion-trophy" title="Campeón Mundial de Constructores <?= $car['year'] ?>">🏗️ CAMPEÓN CONSTRUCTORES</span>
+        <?php endif; ?>
+      </div>
       <?php endif; ?>
     </div>
     <h1 class="car-detail-team"><?= htmlspecialchars($car['team']) ?></h1>
@@ -119,50 +126,6 @@ $nextSlug = $adj['next'] ? makeCarSlug($adj['next']) : null;
     </div>
     <?php endif; ?>
 
-    <!-- ── Desempeño en temporada ── -->
-    <div class="car-detail-performance" id="perfSection">
-      <div class="car-detail-perf-header">
-        <div class="car-detail-note-label" style="color:var(--red)">⚡ DESEMPEÑO EN <?= $car['year'] ?></div>
-        <?php if ($admin): ?>
-          <button class="car-perf-edit-btn" id="perfToggleBtn" onclick="togglePerfEdit()">✏️ EDITAR</button>
-        <?php endif; ?>
-      </div>
-
-      <!-- Texto generado/guardado -->
-      <div id="perfDisplay">
-        <?php if (!empty($car['performance'])): ?>
-          <p class="car-perf-text"><?= nl2br(htmlspecialchars($car['performance'])) ?></p>
-        <?php else: ?>
-          <p class="car-perf-empty">
-            <?php if ($admin): ?>
-              Sin información de desempeño aún. Usá el botón ✏️ para generar o escribir.
-            <?php else: ?>
-              Información de desempeño próximamente.
-            <?php endif; ?>
-          </p>
-        <?php endif; ?>
-      </div>
-
-      <!-- Panel de edición (solo admin) -->
-      <?php if ($admin): ?>
-      <div id="perfEdit" style="display:none;">
-        <div class="car-perf-ai-bar">
-          <label class="car-perf-champ-label">
-            <input type="checkbox" id="perfChampion" <?= !empty($car['is_champion']) ? 'checked' : '' ?>>
-            🏆 Campeón ese año
-          </label>
-          <span id="perfGenStatus" class="car-perf-status"></span>
-        </div>
-        <textarea id="perfTextarea" class="car-perf-textarea"><?= htmlspecialchars($car['performance'] ?? '') ?></textarea>
-        <div class="car-perf-save-bar">
-          <button class="btn btn-primary btn-sm" onclick="savePerformance()">💾 GUARDAR</button>
-          <button class="btn btn-ghost btn-sm" onclick="togglePerfEdit()">CANCELAR</button>
-          <span id="perfSaveStatus" class="car-perf-status"></span>
-        </div>
-      </div>
-      <?php endif; ?>
-    </div>
-
     <?php if ($admin): ?>
     <div class="car-detail-admin">
       <a href="?page=edit&id=<?= $car['id'] ?>" class="btn btn-ghost">✏️ EDITAR AUTO</a>
@@ -170,6 +133,50 @@ $nextSlug = $adj['next'] ? makeCarSlug($adj['next']) : null;
     <?php endif; ?>
 
   </div>
+</div>
+
+<!-- ── Desempeño en temporada (full width) ── -->
+<div class="car-detail-performance" id="perfSection">
+  <div class="car-detail-perf-header">
+    <div class="car-detail-note-label" style="color:var(--red)">⚡ DESEMPEÑO EN <?= $car['year'] ?></div>
+    <?php if ($admin): ?>
+      <button class="car-perf-edit-btn" id="perfToggleBtn" onclick="togglePerfEdit()">✏️ EDITAR</button>
+    <?php endif; ?>
+  </div>
+
+  <!-- Texto generado/guardado -->
+  <div id="perfDisplay">
+    <?php if (!empty($car['performance'])): ?>
+      <p class="car-perf-text"><?= nl2br(htmlspecialchars($car['performance'])) ?></p>
+    <?php else: ?>
+      <p class="car-perf-empty">
+        <?php if ($admin): ?>
+          Sin información de desempeño aún. Usá el botón ✏️ para generar o escribir.
+        <?php else: ?>
+          Información de desempeño próximamente.
+        <?php endif; ?>
+      </p>
+    <?php endif; ?>
+  </div>
+
+  <!-- Panel de edición (solo admin) -->
+  <?php if ($admin): ?>
+  <div id="perfEdit" style="display:none;">
+    <div class="car-perf-ai-bar">
+      <label class="car-perf-champ-label">
+        <input type="checkbox" id="perfChampion" <?= !empty($car['is_champion']) ? 'checked' : '' ?>>
+        🏆 Campeón ese año
+      </label>
+      <span id="perfGenStatus" class="car-perf-status"></span>
+    </div>
+    <textarea id="perfTextarea" class="car-perf-textarea"><?= htmlspecialchars($car['performance'] ?? '') ?></textarea>
+    <div class="car-perf-save-bar">
+      <button class="btn btn-primary btn-sm" onclick="savePerformance()">💾 GUARDAR</button>
+      <button class="btn btn-ghost btn-sm" onclick="togglePerfEdit()">CANCELAR</button>
+      <span id="perfSaveStatus" class="car-perf-status"></span>
+    </div>
+  </div>
+  <?php endif; ?>
 </div>
 
 <!-- ── Navegación inferior ── -->
