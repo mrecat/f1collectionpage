@@ -71,8 +71,8 @@ if ($page === 'car' && isset($_GET['slug'])) {
 <meta name="twitter:description" content="<?= htmlspecialchars($seoDesc) ?>">
 <meta name="twitter:image"       content="<?= htmlspecialchars($seoImg) ?>">
 
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
