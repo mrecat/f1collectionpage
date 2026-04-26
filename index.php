@@ -71,6 +71,8 @@ if ($page === 'car' && isset($_GET['slug'])) {
 <meta name="twitter:description" content="<?= htmlspecialchars($seoDesc) ?>">
 <meta name="twitter:image"       content="<?= htmlspecialchars($seoImg) ?>">
 
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -98,8 +100,6 @@ if ($page === 'car' && isset($_GET['slug'])) {
       <?php if (isAdmin()): ?>
         <a href="?page=add" class="<?= $page==='add'?'active':'' ?>">➕ Agregar</a>
         <a href="?logout=1" class="nav-logout" title="Cerrar sesión admin">🔓 SALIR</a>
-      <?php else: ?>
-        <a href="?page=login" class="<?= $page==='login'?'active':'' ?> nav-login">🔒 ADMIN</a>
       <?php endif; ?>
     </nav>
   </div>
@@ -131,6 +131,9 @@ switch($page) {
       <img src="https://cdn.cafecito.app/imgs/buttons/button_5.svg" alt="Invitame un café en cafecito.app" />
     </a>
   </div>
+  <?php if (!isAdmin()): ?>
+    <a href="?page=login" class="footer-admin-link">🔒</a>
+  <?php endif; ?>
 </footer>
 
 <script src="app.js"></script>
