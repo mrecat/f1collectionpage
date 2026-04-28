@@ -37,6 +37,15 @@ function initDB(PDO $pdo): void {
     try { $pdo->exec("ALTER TABLE cars ADD COLUMN performance TEXT DEFAULT NULL"); } catch(Exception $e) {}
     // Add champion flag if upgrading
     try { $pdo->exec("ALTER TABLE cars ADD COLUMN is_champion INTEGER DEFAULT 0"); } catch(Exception $e) {}
+    try { $pdo->exec("ALTER TABLE cars ADD COLUMN is_team_champion INTEGER DEFAULT 0"); } catch(Exception $e) {}
+
+    // Tabla de configuración general (about, etc.)
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS settings (
+            key   TEXT PRIMARY KEY,
+            value TEXT
+        )
+    ");
 
     // Tabla de múltiples imágenes por auto
     $pdo->exec("
@@ -620,4 +629,19 @@ function getMiniaturas(array $filters = []): array {
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
     return $stmt->fetchAll();
+}
+
+// ── Settings (about, etc.) ────────────────────────
+function getSetting(string $key, string $default = ''): string {
+    try {
+        $row = getDB()->prepare("SELECT value FROM settings WHERE key = ?");
+        $row->execute([$key]);
+        $r = $row->fetch();
+        return $r ? $r['value'] : $default;
+    } catch (Exception $e) { return $default; }
+}
+
+function saveSetting(string $key, string $value): void {
+    getDB()->prepare("INSERT INTO settings (key, value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value")
+           ->execute([$key, $value]);
 }

@@ -5,7 +5,7 @@ require_once 'auth.php';
 $page = $_GET['page'] ?? 'home';
 
 // Páginas que requieren ser admin
-$protectedPages = ['add', 'edit'];
+$protectedPages = ['add', 'edit', 'about_edit'];
 if (in_array($page, $protectedPages)) {
     requireAdmin();
 }
@@ -43,6 +43,9 @@ if ($page === 'car' && isset($_GET['slug'])) {
 } elseif ($page === 'miniaturas') {
     $seoTitle = 'Miniaturas — F1 Collection';
     $seoDesc  = 'Las miniaturas a escala de la colección: IXO, BBurago, Spark, Salvat y más fabricantes.';
+} elseif ($page === 'about') {
+    $seoTitle = 'Sobre la colección — F1 Collection';
+    $seoDesc  = '13 años coleccionando miniaturas de Fórmula 1. La historia detrás de más de 240 autos a escala.';
 }
 ?>
 <!DOCTYPE html>
@@ -97,6 +100,7 @@ if ($page === 'car' && isset($_GET['slug'])) {
       <a href="?page=miniaturas" class="<?= $page==='miniaturas'?'active':'' ?>">🔬 Miniaturas</a>
       <a href="?page=stats"      class="<?= $page==='stats'?'active':'' ?>">📊 Stats</a>
       <a href="?page=timeline"   class="<?= $page==='timeline'?'active':'' ?>">📅 Historia</a>
+      <a href="?page=about"      class="<?= $page==='about'?'active':'' ?>">👤 Sobre mí</a>
       <?php if (isAdmin()): ?>
         <a href="?page=add" class="<?= $page==='add'?'active':'' ?>">➕ Agregar</a>
         <a href="?logout=1" class="nav-logout" title="Cerrar sesión admin">🔓 SALIR</a>
@@ -108,15 +112,17 @@ if ($page === 'car' && isset($_GET['slug'])) {
 <main>
 <?php
 switch($page) {
-  case 'home':      include 'pages/home.php';       break;
-  case 'stats':     include 'pages/stats.php';      break;
-  case 'timeline':    include 'pages/timeline.php';    break;
-  case 'miniaturas':  include 'pages/miniaturas.php';  break;
-  case 'add':       include 'pages/add.php';        break;
-  case 'edit':      include 'pages/edit.php';       break;
-  case 'car':       include 'pages/car.php';        break;
-  case 'login':     include 'pages/login.php';      break;
-  default:          include 'pages/collection.php'; break;
+  case 'home':       include 'pages/home.php';       break;
+  case 'stats':      include 'pages/stats.php';      break;
+  case 'timeline':   include 'pages/timeline.php';   break;
+  case 'miniaturas': include 'pages/miniaturas.php';  break;
+  case 'about':      include 'pages/about.php';      break;
+  case 'about_edit': include 'pages/about_edit.php'; break;
+  case 'add':        include 'pages/add.php';        break;
+  case 'edit':       include 'pages/edit.php';       break;
+  case 'car':        include 'pages/car.php';        break;
+  case 'login':      include 'pages/login.php';      break;
+  default:           include 'pages/collection.php'; break;
 }
 ?>
 </main>
@@ -125,12 +131,6 @@ switch($page) {
 
 <footer>
   <span><?= SITE_NAME ?> &copy; <?= date('Y') ?> &mdash; <?= getTotalCars() ?> autos en la parrilla</span>
-  <div class="footer-cafecito">
-    <span class="footer-cafecito-text">¿Te gustó el sitio? Invitame un café ☕</span>
-    <a href="https://cafecito.app/f1collection" rel="noopener" target="_blank" class="footer-cafecito-btn">
-      <img src="https://cdn.cafecito.app/imgs/buttons/button_5.svg" alt="Invitame un café en cafecito.app" />
-    </a>
-  </div>
   <?php if (!isAdmin()): ?>
     <a href="?page=login" class="footer-admin-link">🔒</a>
   <?php endif; ?>
