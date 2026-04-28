@@ -70,9 +70,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const fi = document.getElementById('fileInput');
     if (e.dataTransfer.files.length && fi) {
       fi.files = e.dataTransfer.files;
-      // call whichever preview function exists
       if (fi.multiple) previewImages(fi);
       else             previewImage(fi);
     }
+  });
+});
+
+// ── Carrusel últimas incorporaciones ─────────────
+let _carIdx = 0;
+
+function carouselGoTo(idx) {
+  const track  = document.getElementById('carouselTrack');
+  const dots   = document.querySelectorAll('.carousel-dot');
+  const slides = document.querySelectorAll('.carousel-slide');
+  if (!track || !slides.length) return;
+
+  _carIdx = (idx + slides.length) % slides.length;
+  track.style.transform = `translateX(-${_carIdx * 100}%)`;
+
+  dots.forEach((d, i) => d.classList.toggle('active', i === _carIdx));
+
+  // Ocultar/mostrar flechas si solo hay 1 slide
+  const prev = document.querySelector('.carousel-prev');
+  const next = document.querySelector('.carousel-next');
+  if (prev && next) {
+    const show = slides.length > 1;
+    prev.style.visibility = show ? 'visible' : 'hidden';
+    next.style.visibility = show ? 'visible' : 'hidden';
+  }
+}
+
+function carouselMove(dir) { carouselGoTo(_carIdx + dir); }
+
+// Touch / swipe support
+document.addEventListener('DOMContentLoaded', () => {
+  const track = document.getElementById('carouselTrack');
+  if (!track) return;
+  carouselGoTo(0); // init
+  let startX = 0;
+  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend',   e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) carouselMove(diff > 0 ? 1 : -1);
   });
 });

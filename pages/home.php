@@ -2,9 +2,12 @@
 $d      = getHomeData();
 $hero   = $d['hero'];
 $stats  = $d['stats'];
-$latest = $d['latest'] ?? null;
+$recents = $d['recents'] ?? [];
 
-$latestSlug = $latest ? htmlspecialchars(makeCarSlug($latest)) : '';
+$recentSlugs = [];
+foreach ($recents as $r) {
+    $recentSlugs[] = htmlspecialchars(makeCarSlug($r));
+}
 
 $mosaicSlugs = [];
 foreach ($d['mosaic'] as $m) {
@@ -87,42 +90,62 @@ foreach ($d['mosaic'] as $m) {
 </div>
 <?php endif; ?>
 
-<!-- ÚLTIMO AUTO AGREGADO -->
-<?php if ($latest): ?>
+<!-- ÚLTIMAS INCORPORACIONES — CARRUSEL -->
+<?php if (!empty($recents)): ?>
 <div class="home-latest-section">
   <div class="home-section-header">
-    <div class="home-section-title">⚡ ÚLTIMA INCORPORACIÓN</div>
+    <div class="home-section-title">⚡ ÚLTIMAS INCORPORACIONES</div>
     <a href="?page=collection" class="home-section-link">Ver toda la colección →</a>
   </div>
-  <div class="home-latest-card">
-    <a href="?page=car&slug=<?= $latestSlug ?>" class="home-latest-img">
-      <?php if ($latest['thumb']): ?>
-        <img src="<?= htmlspecialchars($latest['thumb']) ?>" alt="<?= htmlspecialchars($latest['model']) ?>">
-      <?php else: ?>
-        <span class="home-latest-noimg">🏎️</span>
-      <?php endif; ?>
-      <span class="home-latest-badge">NUEVO</span>
-    </a>
-    <div class="home-latest-body">
-      <div class="home-latest-year"><?= $latest['year'] ?></div>
-      <div class="home-latest-team"><?= htmlspecialchars($latest['team']) ?></div>
-      <div class="home-latest-model"><?= htmlspecialchars($latest['model']) ?></div>
-      <?php if ($latest['driver']): ?>
-        <div class="home-latest-driver">🧑‍✈️ <?= htmlspecialchars($latest['driver']) ?></div>
-      <?php endif; ?>
-      <?php if ($latest['maker']): ?>
-        <div class="home-latest-maker">🏭 <?= htmlspecialchars($latest['maker']) ?></div>
-      <?php endif; ?>
-      <?php if ($latest['created_at']): ?>
-        <div class="home-latest-date">📅 Incorporado el <?= date('d/m/Y', strtotime($latest['created_at'])) ?></div>
-      <?php endif; ?>
-      <?php if ($latest['note']): ?>
-        <div class="home-latest-note">"<?= htmlspecialchars($latest['note']) ?>"</div>
-      <?php endif; ?>
-      <?php if ($latestSlug): ?>
-        <a href="?page=car&slug=<?= $latestSlug ?>" class="btn btn-primary home-latest-btn">🔍 VER DETALLE</a>
-      <?php endif; ?>
+
+  <div class="carousel-wrap">
+    <button class="carousel-arrow carousel-prev" onclick="carouselMove(-1)" aria-label="Anterior">&#8249;</button>
+
+    <div class="carousel-track-wrap">
+      <div class="carousel-track" id="carouselTrack">
+        <?php foreach ($recents as $i => $r): ?>
+        <div class="carousel-slide">
+          <div class="home-latest-card">
+            <a href="?page=car&slug=<?= $recentSlugs[$i] ?>" class="home-latest-img">
+              <?php if ($r['thumb']): ?>
+                <img src="<?= htmlspecialchars($r['thumb']) ?>" alt="<?= htmlspecialchars($r['model']) ?>">
+              <?php else: ?>
+                <span class="home-latest-noimg">🏎️</span>
+              <?php endif; ?>
+              <span class="home-latest-badge">NUEVO</span>
+            </a>
+            <div class="home-latest-body">
+              <div class="home-latest-year"><?= $r['year'] ?></div>
+              <div class="home-latest-team"><?= htmlspecialchars($r['team']) ?></div>
+              <div class="home-latest-model"><?= htmlspecialchars($r['model']) ?></div>
+              <?php if ($r['driver']): ?>
+                <div class="home-latest-driver">🧑‍✈️ <?= htmlspecialchars($r['driver']) ?></div>
+              <?php endif; ?>
+              <?php if ($r['maker']): ?>
+                <div class="home-latest-maker">🏭 <?= htmlspecialchars($r['maker']) ?></div>
+              <?php endif; ?>
+              <?php if ($r['created_at']): ?>
+                <div class="home-latest-date">📅 <?= date('d/m/Y', strtotime($r['created_at'])) ?></div>
+              <?php endif; ?>
+              <?php if ($r['note']): ?>
+                <div class="home-latest-note">"<?= htmlspecialchars($r['note']) ?>"</div>
+              <?php endif; ?>
+              <a href="?page=car&slug=<?= $recentSlugs[$i] ?>" class="btn btn-primary home-latest-btn">🔍 VER DETALLE</a>
+            </div>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
     </div>
+
+    <button class="carousel-arrow carousel-next" onclick="carouselMove(1)" aria-label="Siguiente">&#8250;</button>
+  </div>
+
+  <!-- Dots -->
+  <div class="carousel-dots" id="carouselDots">
+    <?php foreach ($recents as $i => $r): ?>
+      <button class="carousel-dot <?= $i===0?'active':'' ?>" onclick="carouselGoTo(<?= $i ?>)" aria-label="Slide <?= $i+1 ?>"></button>
+    <?php endforeach; ?>
   </div>
 </div>
 <?php endif; ?>

@@ -1445,6 +1445,70 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   padding: 10px 22px;
 }
 
+/* ── Carrusel ─────────────────────────────────── */
+.carousel-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.carousel-track-wrap {
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+.carousel-track {
+  display: flex;
+  transition: transform .4s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
+}
+.carousel-slide {
+  min-width: 100%;
+}
+.carousel-arrow {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, border-color .2s, color .2s;
+  line-height: 1;
+}
+.carousel-arrow:hover {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border2);
+  border: none;
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+  padding: 0;
+}
+.carousel-dot.active {
+  background: var(--red);
+  transform: scale(1.3);
+}
+@media (max-width: 500px) {
+  .carousel-arrow { display: none; }
+}
+
 /* ── Sobre la colección ──────────────────────────── */
 .home-about-section {
   margin-bottom: 52px;
@@ -2512,4 +2576,121 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
 .about-edit-actions {
   display: flex;
   gap: 12px;
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE MOBILE — breakpoint 480px
+   ══════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  /* Header y nav */
+  .header-inner { padding: 10px 14px; gap: 8px; }
+  .logo-title { font-size: 14px; letter-spacing: 2px; }
+  nav { gap: 4px; }
+  nav a { font-size: 9px; padding: 6px 8px; letter-spacing: 1px; }
+
+  /* Main */
+  main { padding: 16px 12px; }
+  .page-title { font-size: 16px; letter-spacing: 2px; margin-bottom: 20px; }
+
+  /* Hero */
+  .home-hero { min-height: 340px; }
+  .home-hero-content { padding: 28px 16px 90px; }
+  .home-hero-title { font-size: clamp(26px, 9vw, 38px); }
+  .home-hero-sub { font-size: 13px; }
+  .home-hero-cta { font-size: 11px; padding: 12px 22px; }
+  .home-stats-bar { flex-wrap: wrap; gap: 0; padding: 14px 16px; }
+  .home-stat { padding: 8px 12px; }
+  .home-stat-n { font-size: 18px; }
+  .home-stat-sep { display: none; }
+
+  /* About section home */
+  .home-about-section { padding: 24px 18px; }
+  .home-about-inner { flex-direction: column; gap: 16px; }
+  .home-about-icon { font-size: 36px; }
+  .home-about-desc { font-size: 14px; }
+
+  /* Mosaico */
+  .home-mosaic { grid-template-columns: repeat(2, 1fr) !important; grid-template-rows: repeat(6, 110px) !important; }
+  .home-mosaic-item:nth-child(1) { grid-column: span 2 !important; grid-row: span 2 !important; }
+  .home-mosaic-item:nth-child(2) { grid-column: span 1 !important; grid-row: span 1 !important; }
+
+  /* Carrusel / latest */
+  .home-latest-card { grid-template-columns: 1fr; }
+  .home-latest-img  { height: 200px; }
+  .home-latest-body { padding: 18px 16px; }
+  .home-latest-team { font-size: 16px; }
+
+  /* Collection table → ocultar columnas menos importantes */
+  .coll-table th:nth-child(4),
+  .coll-table td:nth-child(4),
+  .coll-table th:nth-child(5),
+  .coll-table td:nth-child(5) { display: none; }
+
+  /* Cards grid */
+  .coll-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Filtros */
+  .filters { flex-direction: column; gap: 8px; }
+  .filter-group { width: 100%; }
+  .filter-group select,
+  .filter-group input { width: 100%; box-sizing: border-box; }
+
+  /* Car detail */
+  .car-detail { grid-template-columns: 1fr; gap: 20px; }
+  .car-detail-team { font-size: 22px; }
+  .car-detail-model { font-size: 16px; margin-bottom: 18px; }
+  .car-pill-value { font-size: 16px; }
+  .car-champion-trophy,
+  .car-team-champion-trophy { font-size: 9px; padding: 4px 10px; letter-spacing: 1px; }
+  .car-detail-badges { gap: 6px; }
+  .car-bottom-nav { grid-template-columns: 1fr; }
+  .car-nav-btn span { display: none; }
+  .car-bottom-next { text-align: left; }
+  .car-breadcrumb { font-size: 10px; }
+  .car-top-nav { flex-direction: column; gap: 8px; }
+  .car-top-nav .btn { font-size: 9px; padding: 6px 12px; }
+
+  /* Performance */
+  .car-detail-performance { padding: 18px 16px; }
+
+  /* Stats */
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .records-grid { grid-template-columns: 1fr !important; }
+  .charts-row { grid-template-columns: 1fr; }
+
+  /* About */
+  .about-wrap { gap: 24px; }
+  .about-photo-wrap { max-width: 240px; margin: 0 auto; }
+  .about-stats { grid-template-columns: repeat(2, 1fr); }
+  .about-text { font-size: 16px; padding: 20px 18px; }
+  .about-stat-num { font-size: 18px; }
+
+  /* Timeline */
+  .timeline-list { padding-left: 16px; }
+
+  /* Footer */
+  footer { font-size: 9px; letter-spacing: 1.5px; padding: 14px 12px; }
+
+  /* Botones generales */
+  .btn { font-size: 10px; padding: 8px 14px; }
+  .btn-primary { font-size: 11px; }
+
+  /* CTA final home */
+  .home-cta-btns { flex-direction: column; align-items: stretch; }
+  .home-cta-btns .btn { text-align: center; }
+  .home-cta-text { font-size: 14px; }
+}
+
+/* Tablets — 481px a 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  main { padding: 20px 16px; }
+  .home-hero-title { font-size: clamp(28px, 7vw, 42px); }
+  .home-latest-card { grid-template-columns: 1fr; }
+  .home-latest-img  { height: 240px; }
+  .car-detail { grid-template-columns: 1fr; }
+  .about-wrap { gap: 28px; }
+  .about-text { font-size: 17px; }
+  .coll-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-cta-btns { flex-wrap: wrap; justify-content: center; }
 }

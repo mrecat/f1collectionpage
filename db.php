@@ -582,18 +582,20 @@ function getHomeData(): array {
         LIMIT 12
     ")->fetchAll();
 
-    // Último auto agregado (mayor id con imagen)
-    $latest = $db->query("
+    // Últimos 3 autos agregados (mayor id con imagen)
+    $recents = $db->query("
         SELECT c.id, c.year, c.team, c.model, c.driver, c.maker, c.note, c.created_at,
                (SELECT path FROM car_images ci2 WHERE ci2.car_id = c.id
                 ORDER BY ci2.sort_order ASC, ci2.id ASC LIMIT 1) as thumb
         FROM cars c
         WHERE EXISTS (SELECT 1 FROM car_images ci WHERE ci.car_id = c.id)
         ORDER BY c.id DESC
-        LIMIT 1
-    ")->fetch();
+        LIMIT 3
+    ")->fetchAll();
 
-    return compact('stats', 'hero', 'mosaic', 'latest');
+    $latest = $recents[0] ?? null;
+
+    return compact('stats', 'hero', 'mosaic', 'latest', 'recents');
 }
 
 // ─── Miniaturas (segunda foto = modelo a escala) ──────────────────────────────
