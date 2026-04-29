@@ -94,10 +94,27 @@ $admin  = isAdmin();
     <div class="mini-card-body">
       <div class="mini-card-team"><?= htmlspecialchars($item['team']) ?></div>
       <div class="mini-card-model"><?= htmlspecialchars($item['model']) ?></div>
-      <?php if ($item['driver']): ?>
-        <div class="mini-card-driver"><?= htmlspecialchars($item['driver']) ?></div>
-      <?php endif; ?>
-      <div class="mini-card-maker"><?= htmlspecialchars($item['maker']) ?></div>
+      <div class="mini-card-divider"></div>
+      <div class="mini-card-pills">
+        <?php if ($item['driver']): ?>
+        <div class="mini-card-pill">
+          <span class="mini-pill-label">PILOTO</span>
+          <span class="mini-pill-value">🧑‍✈️ <?= htmlspecialchars($item['driver']) ?></span>
+        </div>
+        <?php endif; ?>
+        <?php if ($item['maker']): ?>
+        <div class="mini-card-pill">
+          <span class="mini-pill-label">FABRICANTE</span>
+          <span class="mini-pill-value">🏭 <?= htmlspecialchars($item['maker']) ?></span>
+        </div>
+        <?php endif; ?>
+        <?php if ($item['collection']): ?>
+        <div class="mini-card-pill">
+          <span class="mini-pill-label">COLECCIÓN</span>
+          <span class="mini-pill-value">📦 <?= htmlspecialchars($item['collection']) ?></span>
+        </div>
+        <?php endif; ?>
+      </div>
     </div>
   </div>
   <?php endforeach; ?>
@@ -139,6 +156,7 @@ function openMiniModal(car) {
   // Header
   document.getElementById('miniModalHeader').innerHTML =
     '<span class="mini-mh-year">' + car.year + '</span>' +
+    '<span class="mini-mh-sep">·</span>' +
     '<span class="mini-mh-team">' + car.team + '</span>' +
     '<span class="mini-mh-model">' + car.model + '</span>';
 
@@ -154,13 +172,13 @@ function openMiniModal(car) {
     ? '<img src="' + car.scale_img + '" alt="Modelo escala">'
     : '<span class="mini-modal-noimg">🔬</span>';
 
-  // Datos
-  document.getElementById('miniModalBody').innerHTML =
-    '<div class="mini-modal-tags">' +
-    (car.driver     ? '<span class="modal-tag">🧑‍✈️ ' + car.driver     + '</span>' : '') +
-    (car.maker      ? '<span class="modal-tag">🏭 '    + car.maker      + '</span>' : '') +
-    (car.collection ? '<span class="modal-tag">📦 '    + car.collection + '</span>' : '') +
-    '</div>';
+  // Pills con etiqueta + dato
+  var pills = '';
+  if (car.driver)     pills += '<div class="mini-modal-pill"><span class="mini-modal-pill-label">PILOTO</span><span class="mini-modal-pill-value">🧑‍✈️ ' + car.driver + '</span></div>';
+  if (car.maker)      pills += '<div class="mini-modal-pill"><span class="mini-modal-pill-label">FABRICANTE</span><span class="mini-modal-pill-value">🏭 ' + car.maker + '</span></div>';
+  if (car.collection) pills += '<div class="mini-modal-pill"><span class="mini-modal-pill-label">COLECCIÓN</span><span class="mini-modal-pill-value">📦 ' + car.collection + '</span></div>';
+
+  document.getElementById('miniModalBody').innerHTML = '<div class="mini-modal-pills">' + pills + '</div>';
 
   // Edit link
   var editBtn = document.getElementById('miniEditBtn');
