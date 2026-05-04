@@ -1,6 +1,4 @@
-# No incluir las imágenes en la imagen Docker — se usan desde el volumen persistente
-data/images/
-data/*.old
+# Excluir datos de trabajo (se usan desde data-seed en el Dockerfile)
 
 # Git
 .git

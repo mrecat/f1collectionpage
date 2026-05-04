@@ -4,16 +4,27 @@
 
 PORT="${PORT:-8080}"
 
-# Inicializar el volumen de datos si está vacío (primer arranque en Fly.io)
 DATA_DIR="/var/www/html/data"
-if [ ! -f "$DATA_DIR/collection.db" ]; then
-  echo "Inicializando directorio de datos..."
+SEED_DIR="/var/www/html/data-seed"
+
+# Primer arranque: copiar DB e imágenes desde la imagen Docker al volumen
+if [ ! -f "$DATA_DIR/.initialized" ]; then
+  echo "Primer arranque: inicializando volumen desde seed..."
   mkdir -p "$DATA_DIR/images"
-  # Si hay una DB de bootstrap en /var/www/html/data-seed, copiarla
-  if [ -f "/var/www/html/data-seed/collection.db" ]; then
-    cp /var/www/html/data-seed/collection.db "$DATA_DIR/collection.db"
-    echo "Base de datos copiada desde seed."
+
+  if [ -f "$SEED_DIR/collection.db" ]; then
+    cp "$SEED_DIR/collection.db" "$DATA_DIR/collection.db"
+    echo "Base de datos copiada."
   fi
+
+  if [ -d "$SEED_DIR/images" ] && [ "$(ls -A $SEED_DIR/images 2>/dev/null)" ]; then
+    echo "Copiando imagenes (puede tardar un momento)..."
+    cp -r "$SEED_DIR/images/." "$DATA_DIR/images/"
+    echo "Imagenes copiadas."
+  fi
+
+  touch "$DATA_DIR/.initialized"
+  echo "Inicializacion completa."
 fi
 
 # Asegurar permisos correctos
