@@ -1,131 +1,147 @@
 <?php
 $byYear = getTimelineData();
-$years  = array_keys($byYear);
-$minYear = min($years);
-$maxYear = max($years);
 
-// F1 eras with colors
 $eras = [
-    [1900, 1949, 'PRE HISTORIA',      '#8b7355'],
-    [1950, 1961, 'ERA PREMODERNA',    '#8b7355'],
-    [1962, 1972, 'ERA ALAS',          '#4a7c59'],
-    [1973, 1982, 'EFECTO SUELO',      '#2d6a8f'],
-    [1983, 1988, 'ERA TURBO',         '#7c3d8f'],
-    [1989, 1994, 'ERA ASPIRADA',      '#8f5a2d'],
-    [1995, 2004, 'DOMINIO SCHUMACHER','#8f2d2d'],
-    [2005, 2013, 'ERA V8',            '#5a7c2d'],
-    [2014, 2021, 'ERA HÍBRIDA',       '#2d5a8f'],
-    [2022, 2099, 'EFECTO SUELO 2.0',  '#6b2d8f'],
+    [1936, 1949, 'PRE F1',           '#6b4c2a', 'Los primeros monoplazas de carrera, antes del campeonato oficial.'],
+    [1950, 1961, 'ERA PREMODERNA',   '#8a6a35', 'El nacimiento del Campeonato Mundial. Alfa Romeo, Ferrari y Maserati dominan.'],
+    [1962, 1972, 'ERA ALAS',         '#2d6a4a', 'La aerodinámica cambia todo. Lotus, Brabham y Tyrrell revolucionan el diseño.'],
+    [1973, 1982, 'EFECTO SUELO',     '#1a5a7a', 'El efecto suelo convierte los autos en aspiradoras. Velocidades imposibles.'],
+    [1983, 1988, 'ERA TURBO',        '#6a2d7a', 'Los turbo de 1500 CV. La era más potente y peligrosa de la historia.'],
+    [1989, 1994, 'ERA ASPIRADA',     '#7a4a1a', 'Vuelta a los aspirados. Senna, Prost y Mansell. Tragedia en Imola 1994.'],
+    [1995, 2004, 'ERA SCHUMACHER',   '#8f2020', 'Michael Schumacher y Ferrari. Siete títulos, cinco consecutivos. Dominio total.'],
+    [2005, 2013, 'ERA V8',           '#3a6a1a', 'Alonso, Hamilton, Vettel. Los V8 de 18.000 RPM. El sonido más puro de la F1.'],
+    [2014, 2021, 'ERA HÍBRIDA',      '#1a4a8a', 'Mercedes arrasa. Los híbridos turbo llegan para quedarse. Hamilton hace historia.'],
+    [2022, 2099, 'EFECTO SUELO 2.0', '#5a1a8a', 'Nuevo reglamento, nuevos dominadores. Verstappen y Red Bull, y el resurgir de Ferrari.'],
 ];
 
-function getEra(int $year, array $eras): array {
-    foreach ($eras as $era) {
-        if ($year >= $era[0] && $year <= $era[1]) return $era;
+// Agrupar autos por era
+$eraData = [];
+foreach ($eras as $idx => $era) {
+    $cars = [];
+    foreach ($byYear as $year => $yearCars) {
+        if ($year >= $era[0] && $year <= $era[1]) {
+            foreach ($yearCars as $car) $cars[] = $car;
+        }
     }
-    return [0, 0, 'DESCONOCIDA', '#555'];
+    if (!empty($cars)) $eraData[$idx] = $cars;
 }
 ?>
 
-<!-- <div class="page-title">📅 LÍNEA DE <span>TIEMPO</span></div> -->
+<div class="page-title">📅 HISTORIA DE LA <span>COLECCIÓN</span></div>
 
-<div class="timeline-legend">
-  <?php foreach ($eras as $era): ?>
-    <?php
-      $hasAny = false;
-      foreach ($years as $y) { if ($y >= $era[0] && $y <= $era[1]) { $hasAny = true; break; } }
-      if (!$hasAny) continue;
-    ?>
-    <div class="legend-item">
-      <span class="legend-dot" style="background:<?= $era[3] ?>"></span>
-      <span><?= $era[2] ?> (<?= $era[0] ?>–<?= min($era[1], 2099)==2099?'hoy':$era[1] ?>)</span>
+<div class="eras-grid" id="erasGrid">
+<?php foreach ($eras as $idx => $era):
+    if (!isset($eraData[$idx])) continue;
+    $cars  = $eraData[$idx];
+    $total = count($cars);
+    $teams = count(array_unique(array_column($cars, 'team')));
+    // Hasta 4 thumbs para mostrar en la card
+    $thumbs = array_filter(array_slice($cars, 0, 8), fn($c) => !empty($c['thumb']));
+    $thumbs = array_values($thumbs);
+    $endYear = min($era[1], 2025);
+?>
+<div class="era-card" id="era-<?= $idx ?>" style="--ec:<?= $era[3] ?>">
+
+  <!-- Header clickeable -->
+  <div class="era-card-header" onclick="toggleEra(<?= $idx ?>)">
+    <div class="era-card-left">
+      <div class="era-card-years"><?= $era[0] ?> — <?= $endYear ?></div>
+      <div class="era-card-name"><?= $era[2] ?></div>
+      <div class="era-card-desc"><?= $era[4] ?></div>
     </div>
-  <?php endforeach; ?>
-</div>
-
-<div class="timeline-wrap">
-  <div class="timeline-axis">
-
-    <?php
-    $prevEraName = '';
-    foreach ($byYear as $year => $cars):
-      $era = getEra($year, $eras);
-      $eraName = $era[2];
-      $eraColor = $era[3];
-      $showEraLabel = ($eraName !== $prevEraName);
-      $prevEraName = $eraName;
-    ?>
-
-    <?php if ($showEraLabel): ?>
-    <div class="era-marker" style="--era-color:<?= $eraColor ?>">
-      <div class="era-label"><?= $eraName ?></div>
-    </div>
-    <?php endif; ?>
-
-    <div class="timeline-row">
-      <div class="timeline-year" style="color:<?= $eraColor ?>"><?= $year ?></div>
-      <div class="timeline-dot" style="background:<?= $eraColor ?>; box-shadow: 0 0 8px <?= $eraColor ?>"></div>
-      <div class="timeline-cards">
-        <?php foreach ($cars as $car):
-          $thumb = $car['thumb'] ?? null;
-          $carJson = htmlspecialchars(json_encode([
-            'id'     => $car['id'],
-            'year'   => $car['year'],
-            'team'   => $car['team'],
-            'model'  => $car['model'],
-            'driver' => $car['driver'],
-            'maker'  => '',
-            'note'   => '',
-            'img'    => $thumb ? htmlspecialchars($thumb) : '',
-            'imgs'   => $thumb ? [htmlspecialchars($thumb)] : [],
-            'admin'  => false,
-          ]), ENT_QUOTES);
-        ?>
-        <div class="tl-card" onclick="openModal(<?= $carJson ?>)" style="--era-color:<?= $eraColor ?>">
-          <?php if ($thumb): ?>
-            <div class="tl-card-img">
-              <img src="<?= htmlspecialchars($thumb) ?>" alt="<?= htmlspecialchars($car['model']) ?>">
-            </div>
-          <?php else: ?>
-            <div class="tl-card-noimg">🏎️</div>
-          <?php endif; ?>
-          <div class="tl-card-body">
-            <div class="tl-card-team"><?= htmlspecialchars($car['team']) ?></div>
-            <div class="tl-card-model"><?= htmlspecialchars($car['model']) ?></div>
-            <?php if ($car['driver']): ?>
-            <div class="tl-card-driver"><?= htmlspecialchars($car['driver']) ?></div>
-            <?php endif; ?>
-          </div>
+    <div class="era-card-right">
+      <div class="era-card-stats">
+        <div class="era-stat">
+          <span class="era-stat-n"><?= $total ?></span>
+          <span class="era-stat-l">AUTOS</span>
         </div>
+        <div class="era-stat">
+          <span class="era-stat-n"><?= $teams ?></span>
+          <span class="era-stat-l">EQUIPOS</span>
+        </div>
+      </div>
+      <!-- Thumbs preview -->
+      <?php if (!empty($thumbs)): ?>
+      <div class="era-card-thumbs">
+        <?php foreach (array_slice($thumbs, 0, 4) as $c): ?>
+          <div class="era-thumb" style="background-image:url('<?= htmlspecialchars($c['thumb']) ?>')"></div>
         <?php endforeach; ?>
+        <?php if ($total > 4): ?>
+          <div class="era-thumb era-thumb-more">+<?= $total - 4 ?></div>
+        <?php endif; ?>
       </div>
+      <?php endif; ?>
+      <div class="era-card-toggle" id="toggle-<?= $idx ?>">▼</div>
     </div>
-
-    <?php endforeach; ?>
   </div>
-</div>
 
-<!-- Modal (same as collection) -->
-<div class="modal-overlay" id="carModal" onclick="closeModalOnBg(event)">
-  <div class="modal-box">
-    <div class="modal-img-wrap" id="modalImgWrap">
-      <button class="modal-close-btn" onclick="closeModal()">✕</button>
-      <span class="modal-no-img" id="modalNoImg">🏎️</span>
-      <div id="modalGallery" style="display:none;width:100%;position:relative;">
-        <img id="modalImg" src="" alt="" style="max-width:100%;max-height:360px;object-fit:contain;display:block;margin:0 auto;">
-        <div class="gallery-nav" id="galleryNav" style="display:none;">
-          <button class="gallery-prev" onclick="galleryPrev()">‹</button>
-          <span class="gallery-counter" id="galleryCounter"></span>
-          <button class="gallery-next" onclick="galleryNext()">›</button>
+  <!-- Contenido expandible -->
+  <div class="era-card-body" id="body-<?= $idx ?>">
+    <div class="era-cars-grid">
+      <?php foreach ($cars as $car):
+        $slug = htmlspecialchars(makeCarSlug($car));
+      ?>
+      <a href="?page=car&slug=<?= $slug ?>" class="era-car-card">
+        <?php if (!empty($car['thumb'])): ?>
+          <div class="era-car-img">
+            <img src="<?= htmlspecialchars($car['thumb']) ?>" alt="<?= htmlspecialchars($car['model']) ?>">
+          </div>
+        <?php else: ?>
+          <div class="era-car-img era-car-noimg">🏎️</div>
+        <?php endif; ?>
+        <div class="era-car-info">
+          <div class="era-car-year"><?= $car['year'] ?></div>
+          <div class="era-car-team"><?= htmlspecialchars($car['team']) ?></div>
+          <div class="era-car-model"><?= htmlspecialchars($car['model']) ?></div>
+          <?php if ($car['driver']): ?>
+            <div class="era-car-driver">🧑‍✈️ <?= htmlspecialchars($car['driver']) ?></div>
+          <?php endif; ?>
         </div>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="modal-year" id="modalYear"></div>
-      <div class="modal-title" id="modalTitle"></div>
-      <div class="modal-driver" id="modalDriver"></div>
-      <div class="modal-note" id="modalNote" style="display:none"></div>
-      <div class="modal-meta" id="modalMeta"></div>
-      <div class="modal-footer" id="modalFooter"></div>
+      </a>
+      <?php endforeach; ?>
     </div>
   </div>
+
 </div>
+<?php endforeach; ?>
+</div>
+
+<script>
+var _eraTransitionMs = 450;
+
+function toggleEra(idx) {
+  var body   = document.getElementById('body-'   + idx);
+  var toggle = document.getElementById('toggle-' + idx);
+  var card   = document.getElementById('era-'    + idx);
+  var isOpen = body.classList.contains('open');
+
+  // Cerrar todos primero
+  document.querySelectorAll('.era-card-body.open').forEach(function(b) {
+    b.classList.remove('open');
+    b.style.maxHeight = '0';
+  });
+  document.querySelectorAll('.era-card-toggle').forEach(function(t) {
+    t.textContent = '▼';
+    t.classList.remove('open');
+  });
+  document.querySelectorAll('.era-card.open').forEach(function(c) {
+    c.classList.remove('open');
+  });
+
+  if (!isOpen) {
+    // Esperar a que colapse todo antes de abrir y scrollear
+    setTimeout(function() {
+      body.classList.add('open');
+      body.style.maxHeight = body.scrollHeight + 'px';
+      toggle.textContent = '▲';
+      toggle.classList.add('open');
+      card.classList.add('open');
+
+      // Ahora scrollear al header del card (ya está en su posición final)
+      var headerOffset = 80;
+      var top = card.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }, _eraTransitionMs);
+  }
+}
+</script>

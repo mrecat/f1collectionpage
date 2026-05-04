@@ -49,10 +49,10 @@ $maxDecade = max(array_column($s['by_decade'], 'cnt') ?: [1]);
     <div class="stat-number"><?= $s['years'] ?></div>
     <div class="stat-label">AÑOS DISTINTOS</div>
   </div>
-  <div class="stat-card">
+ <!--  <div class="stat-card">
     <div class="stat-number"><?= $photoPct ?>%</div>
     <div class="stat-label">CON FOTO</div>
-  </div>
+  </div> -->
 </div>
 
 <!-- ══ RÉCORDS ══════════════════════════════════════════ -->
