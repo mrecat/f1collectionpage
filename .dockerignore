@@ -1,0 +1,12 @@
+# No incluir las imágenes en la imagen Docker — se usan desde el volumen persistente
+data/images/
+data/*.old
+
+# Git
+.git
+.gitignore
+
+# Otros
+*.md
+render.yaml
+vercel.json

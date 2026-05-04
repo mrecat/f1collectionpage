@@ -1,0 +1,36 @@
+# fly.toml — F1 Collection Page
+# Docs: https://fly.io/docs/reference/configuration/
+
+app = 'f1collection'
+primary_region = 'gru'
+
+[build]
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[http_service.checks]
+  interval = "15s"
+  timeout = "5s"
+  grace_period = "20s"
+  method = "GET"
+  path = "/"
+
+[[vm]]
+  memory = '256mb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+# Volumen persistente para la base de datos e imágenes
+# Crearlo con: fly volumes create f1data --size 2 --region gru
+[[mounts]]
+  source = "f1data"
+  destination = "/var/www/html/data"
