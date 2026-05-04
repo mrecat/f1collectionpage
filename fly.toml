@@ -3,18 +3,23 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'f1collectionpage'
+app = 'f1collection'
 primary_region = 'gru'
 
 [build]
 
 [http_service]
-  internal_port = 8080
+  internal_port = 3000
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
+
+[http_service.checks]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "10s"
 
 [[vm]]
   memory = '1gb'
