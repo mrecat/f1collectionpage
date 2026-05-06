@@ -46,7 +46,7 @@ if ($error) unset($_SESSION['f1_login_error']);
     </form>
 
     <div style="margin-top:20px;">
-      <a href="?page=collection" style="color:var(--muted);font-size:14px;font-family:'Orbitron',monospace;letter-spacing:1px;text-decoration:none;">
+      <a href="?page=collection" style="color:var(--muted);font-size:14px;font-family:'Formula1',sans-serif;letter-spacing:1px;text-decoration:none;">
         ← VOLVER A LA COLECCIÓN
       </a>
     </div>

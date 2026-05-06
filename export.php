@@ -64,8 +64,11 @@ if ($type === 'print') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>F1 Colección — Exportar</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
+@font-face { font-family: 'Formula1'; src: url('fonts/FORMULA1-REGULAR_WEB.TTF') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Formula1'; src: url('fonts/FORMULA1-BOLD_WEB.TTF') format('truetype'); font-weight: 700; }
+@font-face { font-family: 'Formula1Wide'; src: url('fonts/FORMULA1-WIDE_WEB.TTF') format('truetype'); font-weight: 400; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
@@ -78,7 +81,7 @@ if ($type === 'print') {
   }
 
   body {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Formula1', sans-serif;
     background: #fff;
     color: var(--text);
     padding: 32px 40px;
@@ -99,14 +102,14 @@ if ($type === 'print') {
     flex-direction: column;
   }
   .export-logo-title {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Formula1', sans-serif;
     font-size: 22px;
     font-weight: 900;
     color: var(--red);
     letter-spacing: 2px;
   }
   .export-logo-sub {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Formula1', sans-serif;
     font-size: 10px;
     color: var(--muted);
     letter-spacing: 3px;
@@ -141,7 +144,7 @@ if ($type === 'print') {
     background: var(--bg-head);
   }
   thead th {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Formula1', sans-serif;
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -158,7 +161,7 @@ if ($type === 'print') {
   tbody td { padding: 10px 14px; vertical-align: middle; }
 
   .td-year {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Formula1', sans-serif;
     font-size: 13px;
     font-weight: 900;
     color: var(--red);
@@ -198,7 +201,7 @@ if ($type === 'print') {
     z-index: 99;
   }
   .btn-print, .btn-back {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Formula1', sans-serif;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 1.5px;

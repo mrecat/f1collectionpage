@@ -60,7 +60,7 @@ $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
 <!-- ══ GALERÍA DE FOTOS ACTUALES ══════════════════ -->
 <?php if (!empty($images)): ?>
 <div class="form-card" style="margin-bottom:20px;">
-  <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:16px;">
+  <div style="font-family:'Formula1',sans-serif;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:16px;">
     📷 FOTOS ACTUALES — <span style="color:var(--gold)">⭐ = PORTADA</span>
   </div>
   <div class="gallery-edit">
