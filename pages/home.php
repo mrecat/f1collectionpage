@@ -29,7 +29,7 @@ foreach ($d['mosaic'] as $m) {
       <?= $stats['total'] ?> autos de Fórmula 1 y algunos otros en escala, desde <?= $stats['years']['mn'] ?> hasta <?= $stats['years']['mx'] ?>.<br>
       Cada pieza tiene su historia. Cada foto, su momento.
     </p>
-    <a href="?page=collection" class="btn btn-primary home-hero-cta">🏎️ EXPLORAR LA COLECCIÓN</a>
+    <a href="?page=collection" class="btn btn-primary home-hero-cta">EXPLORA LA COLECCIÓN</a>
   </div>
   <div class="home-stats-bar">
     <div class="home-stat"><span class="home-stat-n"><?= $stats['total'] ?></span><span class="home-stat-l">AUTOS</span></div>

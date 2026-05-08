@@ -102,13 +102,13 @@ header {
   font-size: 36px; color: var(--red); letter-spacing: 3px; line-height: 1.1;
 }
 .logo-sub { display: block; font-family: 'Formula1', sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 2px; }
-nav { display: flex; gap: 6px; }
+nav { display: flex; gap: 6px; flex-wrap: wrap; }
 nav a {
   color: var(--text2); text-decoration: none; font-family: 'Formula1', sans-serif;
-  font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 16px 25px;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.5px; padding: 10px 18px;
   border-radius: var(--radius); border: 1px solid transparent; transition: all .2s; white-space: nowrap;
 }
-nav a::first-letter {font-size: 30px;}
+nav a::first-letter {font-size: 32px;}
 nav a:hover { color: var(--text); background: var(--bg3); border-color: var(--border2); }
 nav a.active { color: var(--red); border-color: var(--red); background: var(--red-glow); box-shadow: 0 0 12px var(--red-glow); }
 
@@ -271,7 +271,7 @@ tbody td { padding: 14px 18px; vertical-align: middle; }
 .upload-preview img { max-width: 100%; max-height: 200px; border-radius: var(--radius); border: 1px solid var(--border2); object-fit: contain; }
 
 /* ── Stats ───────────────────────────────── */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 18px; margin-bottom: 36px; }
+.stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-bottom: 36px; }
 .stat-card {
   background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
   padding: 26px; text-align: center; position: relative; overflow: hidden;
@@ -1698,15 +1698,16 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Formula1', sans-serif;
+  font-family: 'Orbitron', monospace;
   font-size: 10px;
   letter-spacing: 1.5px;
   color: var(--muted);
   margin-bottom: 18px;
 }
-.car-breadcrumb a { color: var(--muted); text-decoration: none; transition: color .15s; }
+.car-breadcrumb a { color: var(--muted); text-decoration: none; transition: color .15s; font-size: 10px; }
+.car-breadcrumb a::first-letter { font-size: 10px; }
 .car-breadcrumb a:hover { color: var(--red); }
-.car-breadcrumb span { color: var(--border2); }
+.car-breadcrumb span { color: var(--border2); font-size: 10px; }
 .car-breadcrumb span:last-child { color: var(--text2); }
 
 /* Nav bar prev/next */
