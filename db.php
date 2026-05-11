@@ -622,6 +622,10 @@ function getMiniaturas(array $filters = []): array {
         $sql .= " AND c.team = ?";
         $params[] = $filters['team'];
     }
+    if (!empty($filters['collection'])) {
+        $sql .= " AND c.collection = ?";
+        $params[] = $filters['collection'];
+    }
 
     $sf  = ($filters['sort'] ?? 'year') === 'team' ? 'team' : 'year';
     $sd  = ($filters['dir']  ?? 'asc')  === 'desc' ? 'DESC' : 'ASC';

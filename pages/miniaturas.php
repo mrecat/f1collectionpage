@@ -1,15 +1,17 @@
 <?php
 $filters = [
-    'year' => trim($_GET['year'] ?? ''),
-    'team' => trim($_GET['team'] ?? ''),
+    'year'       => trim($_GET['year'] ?? ''),
+    'team'       => trim($_GET['team'] ?? ''),
+    'collection' => trim($_GET['collection'] ?? ''),
     'sort' => in_array($_GET['sort'] ?? '', ['year','team']) ? $_GET['sort'] : 'year',
     'dir'  => ($_GET['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc',
 ];
 
-$items  = getMiniaturas($filters);
-$years  = getDB()->query("SELECT DISTINCT year FROM cars ORDER BY year")->fetchAll(PDO::FETCH_COLUMN);
-$teams  = getDistinct('team');
-$admin  = isAdmin();
+$items       = getMiniaturas($filters);
+$years       = getDB()->query("SELECT DISTINCT year FROM cars ORDER BY year")->fetchAll(PDO::FETCH_COLUMN);
+$teams       = getDistinct('team');
+$collections = getDistinct('collection');
+$admin       = isAdmin();
 ?>
 
 <div class="page-title">🔬 MODELOS <span>A ESCALA</span></div>
@@ -34,8 +36,15 @@ $admin  = isAdmin();
     <?php endforeach; ?>
   </select>
 
+  <select name="collection" onchange="this.form.submit()">
+    <option value="">— Colección —</option>
+    <?php foreach ($collections as $c): ?>
+      <option value="<?= htmlspecialchars($c) ?>" <?= $filters['collection']===$c?'selected':'' ?>><?= htmlspecialchars($c) ?></option>
+    <?php endforeach; ?>
+  </select>
+
   <button type="submit" class="btn btn-primary">FILTRAR</button>
-  <?php if ($filters['year'] || $filters['team']): ?>
+  <?php if ($filters['year'] || $filters['team'] || $filters['collection']): ?>
     <a href="?page=miniaturas" class="btn btn-ghost">✕ LIMPIAR</a>
   <?php endif; ?>
 </form>
