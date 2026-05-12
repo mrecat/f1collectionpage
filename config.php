@@ -9,6 +9,11 @@
 //                          (generarlo con: php -r "echo password_hash('tu-pass', PASSWORD_BCRYPT);")
 // ═══════════════════════════════════════════════════
 
+// En desarrollo local: crear .env.local.php con putenv() (ver .env.local.example.php)
+if (file_exists(__DIR__ . '/.env.local.php')) {
+    require_once __DIR__ . '/.env.local.php';
+}
+
 define('ADMIN_USER',          getenv('ADMIN_USER')          ?: 'admin');
 define('ADMIN_PASSWORD_HASH', getenv('ADMIN_PASSWORD_HASH') ?: '');
 
