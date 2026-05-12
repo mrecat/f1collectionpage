@@ -1,17 +1,16 @@
 <?php
 // ═══════════════════════════════════════════════════
 //  F1 COLLECTION — CONFIGURACIÓN
-//  Editá estas líneas antes de subir al servidor
+//  Las credenciales se leen desde variables de entorno.
+//  Configurarlas en Render → Environment Variables:
+//
+//    ADMIN_USER          → nombre de usuario admin
+//    ADMIN_PASSWORD_HASH → hash bcrypt de la contraseña
+//                          (generarlo con: php -r "echo password_hash('tu-pass', PASSWORD_BCRYPT);")
 // ═══════════════════════════════════════════════════
 
-// Usuario y contraseña del administrador
-// Para generar un hash seguro podés usar:
-//   php -r "echo password_hash('TU_CONTRASEÑA', PASSWORD_DEFAULT);"
-// O reemplazá directamente ADMIN_PASSWORD con tu contraseña en texto plano
-// y cambiá la verificación en auth.php (ver comentario ahí)
-
-define('ADMIN_USER',     'admin');
-define('ADMIN_PASSWORD', 'f1collection2025');   // ← cambiá esto antes de subir
+define('ADMIN_USER',          getenv('ADMIN_USER')          ?: 'admin');
+define('ADMIN_PASSWORD_HASH', getenv('ADMIN_PASSWORD_HASH') ?: '');
 
 // Nombre del sitio (aparece en el título y el header)
 define('SITE_NAME', 'F1 COLLECTION');

@@ -1,6 +1,8 @@
 <?php
-$error  = !empty($_SESSION['f1_login_error']);
-$denied = !empty($_GET['denied']);
+$errorRaw = $_SESSION['f1_login_error'] ?? null;
+$error    = !empty($errorRaw);
+$errorMsg = is_string($errorRaw) ? $errorRaw : 'Usuario o contraseña incorrectos';
+$denied   = !empty($_GET['denied']);
 if ($error) unset($_SESSION['f1_login_error']);
 ?>
 
@@ -17,7 +19,7 @@ if ($error) unset($_SESSION['f1_login_error']);
 
     <?php if ($error): ?>
       <div class="alert alert-error" style="margin-bottom:20px;">
-        ❌ Usuario o contraseña incorrectos
+        ❌ <?= htmlspecialchars($errorMsg) ?>
       </div>
     <?php endif; ?>
 
