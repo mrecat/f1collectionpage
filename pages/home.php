@@ -157,6 +157,7 @@ foreach ($d['mosaic'] as $m) {
     <a href="?page=collection" class="btn btn-primary">🏎️ VER LA COLECCIÓN</a>
     <a href="?page=timeline"   class="btn btn-ghost">📅 LÍNEA DE TIEMPO</a>
     <a href="?page=stats"      class="btn btn-ghost">📊 ESTADÍSTICAS</a>
+    <a href="?page=kiosco"     class="btn btn-ghost">📺 MODO EXPOSICIÓN</a>
   </div>
 </div>
 

@@ -122,6 +122,7 @@ switch($page) {
   case 'edit':       include 'pages/edit.php';       break;
   case 'car':        include 'pages/car.php';        break;
   case 'login':      include 'pages/login.php';      break;
+  case 'kiosco':     include 'pages/kiosco.php';     break;
   default:           include 'pages/collection.php'; break;
 }
 ?>
