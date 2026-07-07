@@ -38,6 +38,9 @@ function initDB(PDO $pdo): void {
     // Add champion flag if upgrading
     try { $pdo->exec("ALTER TABLE cars ADD COLUMN is_champion INTEGER DEFAULT 0"); } catch(Exception $e) {}
     try { $pdo->exec("ALTER TABLE cars ADD COLUMN is_team_champion INTEGER DEFAULT 0"); } catch(Exception $e) {}
+    // Categoría de colección: 'f1' (default, todo lo existente) o 'fangio' (Museo Fangio)
+    try { $pdo->exec("ALTER TABLE cars ADD COLUMN category TEXT DEFAULT 'f1'"); } catch(Exception $e) {}
+    try { $pdo->exec("UPDATE cars SET category = 'f1' WHERE category IS NULL OR category = ''"); } catch(Exception $e) {}
 
     // Tabla de configuración general (about, etc.)
     $pdo->exec("
@@ -72,7 +75,11 @@ function initDB(PDO $pdo): void {
     }
 
     // Limpiar referencias a imágenes que ya no existen en disco
-    cleanOrphanImages($pdo);
+    // NOTA: antes esto se ejecutaba automáticamente en cada carga de página
+    // (cleanOrphanImages($pdo)) y borraba de la base de datos cualquier
+    // referencia a foto cuyo archivo no estuviera presente en ese momento en
+    // data/images/ — destructivo si el sitio se corre antes de copiar las
+    // fotos. Ahora es una acción manual: ver repair.php / botón de admin.
 
     // Seed data only if empty
     $count = $pdo->query("SELECT COUNT(*) FROM cars")->fetchColumn();
@@ -270,10 +277,16 @@ function seedData(PDO $pdo): void {
 
 // ─── Query helpers ───────────────────────────────────────────────────────────
 
-function getCars(array $filters = [], string $sortField = 'year', string $sortDir = 'asc'): array {
+// Normaliza la categoría a un valor conocido ('f1' o 'fangio') — evita inyección
+// cuando se arma SQL por interpolación en funciones de agregación más abajo.
+function catFilter(string $category): string {
+    return $category === 'fangio' ? 'fangio' : 'f1';
+}
+
+function getCars(array $filters = [], string $sortField = 'year', string $sortDir = 'asc', string $category = 'f1'): array {
     $db  = getDB();
-    $sql = "SELECT * FROM cars WHERE 1=1";
-    $params = [];
+    $sql = "SELECT * FROM cars WHERE category = ?";
+    $params = [catFilter($category)];
 
     if (!empty($filters['q'])) {
         $q = '%' . $filters['q'] . '%';
@@ -353,42 +366,51 @@ function getCarBySlug(string $slug): ?array {
     return null;
 }
 
-// Devuelve el auto anterior y siguiente (por año, luego id)
+// Devuelve el auto anterior y siguiente (por año, luego id) — dentro de la misma categoría
 function getAdjacentCars(int $id): array {
-    $db   = getDB();
-    $all  = $db->query("SELECT id, year, team, model, driver FROM cars ORDER BY year ASC, id ASC")->fetchAll();
+    $db  = getDB();
+    $cur = $db->query("SELECT category FROM cars WHERE id=$id")->fetch();
+    $cat = catFilter($cur['category'] ?? 'f1');
+    $stmt = $db->prepare("SELECT id, year, team, model, driver FROM cars WHERE category=? ORDER BY year ASC, id ASC");
+    $stmt->execute([$cat]);
+    $all  = $stmt->fetchAll();
     $ids  = array_column($all, null, 'id');
     $keys = array_keys($ids);
     $pos  = array_search($id, $keys);
     return [
-        'prev' => ($pos > 0)                ? $all[$pos - 1] : null,
-        'next' => ($pos < count($all) - 1)  ? $all[$pos + 1] : null,
+        'prev' => ($pos !== false && $pos > 0)                ? $all[$pos - 1] : null,
+        'next' => ($pos !== false && $pos < count($all) - 1)  ? $all[$pos + 1] : null,
     ];
 }
 
-function getTotalCars(): int {
-    return (int) getDB()->query("SELECT COUNT(*) FROM cars")->fetchColumn();
+function getTotalCars(string $category = 'f1'): int {
+    $stmt = getDB()->prepare("SELECT COUNT(*) FROM cars WHERE category = ?");
+    $stmt->execute([catFilter($category)]);
+    return (int) $stmt->fetchColumn();
 }
 
-function getDistinct(string $col): array {
+function getDistinct(string $col, string $category = 'f1'): array {
     $col = preg_replace('/[^a-z_]/', '', $col);
-    return getDB()->query("SELECT DISTINCT $col FROM cars WHERE $col != '' ORDER BY $col")->fetchAll(PDO::FETCH_COLUMN);
+    $stmt = getDB()->prepare("SELECT DISTINCT $col FROM cars WHERE $col != '' AND category = ? ORDER BY $col");
+    $stmt->execute([catFilter($category)]);
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
-function getStats(): array {
-    $db = getDB();
+function getStats(string $category = 'f1'): array {
+    $db  = getDB();
+    $cat = catFilter($category); // whitelisted: 'f1' | 'fangio', seguro para interpolar
     return [
-        'total'       => (int)$db->query("SELECT COUNT(*) FROM cars")->fetchColumn(),
-        'favorites'   => (int)$db->query("SELECT COUNT(*) FROM cars WHERE favorite=1")->fetchColumn(),
-        'teams'       => (int)$db->query("SELECT COUNT(DISTINCT team) FROM cars")->fetchColumn(),
-        'drivers'     => (int)$db->query("SELECT COUNT(DISTINCT driver) FROM cars WHERE driver != ''")->fetchColumn(),
-        'years'       => (int)$db->query("SELECT COUNT(DISTINCT year) FROM cars")->fetchColumn(),
-        'by_maker'    => $db->query("SELECT maker, COUNT(*) as cnt FROM cars GROUP BY maker ORDER BY cnt DESC")->fetchAll(),
-        'by_team'     => $db->query("SELECT team, COUNT(*) as cnt FROM cars GROUP BY team ORDER BY cnt DESC LIMIT 10")->fetchAll(),
-        'by_driver'   => $db->query("SELECT driver, COUNT(*) as cnt FROM cars WHERE driver != '' GROUP BY driver ORDER BY cnt DESC LIMIT 10")->fetchAll(),
-        'by_decade'   => $db->query("SELECT (year/10)*10 as decade, COUNT(*) as cnt FROM cars GROUP BY decade ORDER BY decade")->fetchAll(),
-        'by_collection'=> $db->query("SELECT collection, COUNT(*) as cnt FROM cars GROUP BY collection ORDER BY cnt DESC")->fetchAll(),
-        'by_year'      => $db->query("SELECT year, COUNT(*) as cnt FROM cars GROUP BY year ORDER BY year")->fetchAll(),
+        'total'       => (int)$db->query("SELECT COUNT(*) FROM cars WHERE category='$cat'")->fetchColumn(),
+        'favorites'   => (int)$db->query("SELECT COUNT(*) FROM cars WHERE favorite=1 AND category='$cat'")->fetchColumn(),
+        'teams'       => (int)$db->query("SELECT COUNT(DISTINCT team) FROM cars WHERE category='$cat'")->fetchColumn(),
+        'drivers'     => (int)$db->query("SELECT COUNT(DISTINCT driver) FROM cars WHERE driver != '' AND category='$cat'")->fetchColumn(),
+        'years'       => (int)$db->query("SELECT COUNT(DISTINCT year) FROM cars WHERE category='$cat'")->fetchColumn(),
+        'by_maker'    => $db->query("SELECT maker, COUNT(*) as cnt FROM cars WHERE category='$cat' GROUP BY maker ORDER BY cnt DESC")->fetchAll(),
+        'by_team'     => $db->query("SELECT team, COUNT(*) as cnt FROM cars WHERE category='$cat' GROUP BY team ORDER BY cnt DESC LIMIT 10")->fetchAll(),
+        'by_driver'   => $db->query("SELECT driver, COUNT(*) as cnt FROM cars WHERE driver != '' AND category='$cat' GROUP BY driver ORDER BY cnt DESC LIMIT 10")->fetchAll(),
+        'by_decade'   => $db->query("SELECT (year/10)*10 as decade, COUNT(*) as cnt FROM cars WHERE category='$cat' GROUP BY decade ORDER BY decade")->fetchAll(),
+        'by_collection'=> $db->query("SELECT collection, COUNT(*) as cnt FROM cars WHERE category='$cat' GROUP BY collection ORDER BY cnt DESC")->fetchAll(),
+        'by_year'      => $db->query("SELECT year, COUNT(*) as cnt FROM cars WHERE category='$cat' GROUP BY year ORDER BY year")->fetchAll(),
     ];
 }
 
@@ -424,13 +446,18 @@ function saveCar(array $data, ?int $id = null): void {
             $sql .= ", is_team_champion=?";
             $params[] = (int)$data['is_team_champion'];
         }
+        if (array_key_exists('category', $data)) {
+            $sql .= ", category=?";
+            $params[] = catFilter($data['category']);
+        }
         $sql .= " WHERE id=?";
         $params[] = $id;
         $db->prepare($sql)->execute($params);
     } else {
-        $db->prepare("INSERT INTO cars (year,team,model,driver,maker,collection,note) VALUES (?,?,?,?,?,?,?)")
+        $db->prepare("INSERT INTO cars (year,team,model,driver,maker,collection,note,category) VALUES (?,?,?,?,?,?,?,?)")
            ->execute([$data['year'],$data['team'],$data['model'],$data['driver'],
-                      $data['maker'],$data['collection'],$data['note']]);
+                      $data['maker'],$data['collection'],$data['note'],
+                      catFilter($data['category'] ?? 'f1')]);
     }
 }
 
@@ -522,14 +549,17 @@ function deleteAllCarImages(int $carId): void {
 
 // ─── Timeline ─────────────────────────────────────────────────────────────────
 
-function getTimelineData(): array {
-    $stmt = getDB()->query("
+function getTimelineData(string $category = 'f1'): array {
+    $cat  = catFilter($category);
+    $stmt = getDB()->prepare("
         SELECT c.year, c.team, c.model, c.driver, c.id,
                (SELECT path FROM car_images ci WHERE ci.car_id = c.id
                 ORDER BY ci.sort_order ASC, ci.id ASC LIMIT 1) as thumb
         FROM cars c
+        WHERE c.category = ?
         ORDER BY c.year ASC, c.team ASC
     ");
+    $stmt->execute([$cat]);
     $rows   = $stmt->fetchAll();
     $byYear = [];
     foreach ($rows as $row) {
@@ -547,15 +577,20 @@ function setCoverImage(int $carId, int $imageId): void {
 
 // ─── Home page data ───────────────────────────────────────────────────────────
 
-function getHomeData(): array {
-    $db = getDB();
+function getHomeData(string $category = 'f1'): array {
+    $db  = getDB();
+    $cat = catFilter($category); // whitelisted, seguro para interpolar
 
     // Stats
+    // 'total' suma toda la colección (F1 + Museo Fangio); el resto de las
+    // estadísticas se mantiene acotado a la categoría de la página (F1),
+    // ya que Fangio tiene su propia sección con sus propias fotos.
+    $totalAll = (int)$db->query("SELECT COUNT(*) FROM cars")->fetchColumn();
     $stats = [
-        'total'  => (int)$db->query("SELECT COUNT(*) FROM cars")->fetchColumn(),
-        'teams'  => (int)$db->query("SELECT COUNT(DISTINCT team) FROM cars")->fetchColumn(),
-        'photos' => (int)$db->query("SELECT COUNT(*) FROM car_images")->fetchColumn(),
-        'years'  => $db->query("SELECT MIN(year) as mn, MAX(year) as mx FROM cars")->fetch(),
+        'total'  => $totalAll,
+        'teams'  => (int)$db->query("SELECT COUNT(DISTINCT team) FROM cars WHERE category='$cat'")->fetchColumn(),
+        'photos' => (int)$db->query("SELECT COUNT(*) FROM car_images ci JOIN cars c ON c.id=ci.car_id WHERE c.category='$cat'")->fetchColumn(),
+        'years'  => $db->query("SELECT MIN(year) as mn, MAX(year) as mx FROM cars WHERE category='$cat'")->fetch(),
     ];
 
     // Hero: auto aleatorio que tenga imagen
@@ -566,6 +601,7 @@ function getHomeData(): array {
                 ORDER BY ci2.sort_order ASC, ci2.id ASC LIMIT 1) as thumb
         FROM cars c
         JOIN car_images ci ON ci.car_id = c.id
+        WHERE c.category = '$cat'
         GROUP BY c.id
         ORDER BY RANDOM()
         LIMIT 1
@@ -577,7 +613,7 @@ function getHomeData(): array {
                (SELECT path FROM car_images ci WHERE ci.car_id = c.id
                 ORDER BY ci.sort_order ASC, ci.id ASC LIMIT 1) as thumb
         FROM cars c
-        WHERE EXISTS (SELECT 1 FROM car_images ci WHERE ci.car_id = c.id)
+        WHERE EXISTS (SELECT 1 FROM car_images ci WHERE ci.car_id = c.id) AND c.category = '$cat'
         ORDER BY RANDOM()
         LIMIT 12
     ")->fetchAll();
@@ -588,7 +624,7 @@ function getHomeData(): array {
                (SELECT path FROM car_images ci2 WHERE ci2.car_id = c.id
                 ORDER BY ci2.sort_order ASC, ci2.id ASC LIMIT 1) as thumb
         FROM cars c
-        WHERE EXISTS (SELECT 1 FROM car_images ci WHERE ci.car_id = c.id)
+        WHERE EXISTS (SELECT 1 FROM car_images ci WHERE ci.car_id = c.id) AND c.category = '$cat'
         ORDER BY c.id DESC
         LIMIT 3
     ")->fetchAll();
@@ -600,7 +636,7 @@ function getHomeData(): array {
 
 // ─── Miniaturas (segunda foto = modelo a escala) ──────────────────────────────
 
-function getMiniaturas(array $filters = []): array {
+function getMiniaturas(array $filters = [], string $category = 'f1'): array {
     $db  = getDB();
     $sql = "
         SELECT c.id, c.year, c.team, c.model, c.driver, c.maker, c.collection,
@@ -610,9 +646,9 @@ function getMiniaturas(array $filters = []): array {
                 ORDER BY ci2.sort_order ASC, ci2.id ASC LIMIT 1) as real_img
         FROM cars c
         JOIN car_images ci ON ci.car_id = c.id
-        WHERE ci.sort_order = 1
+        WHERE ci.sort_order = 1 AND c.category = ?
     ";
-    $params = [];
+    $params = [catFilter($category)];
 
     if (!empty($filters['year'])) {
         $sql .= " AND c.year = ?";

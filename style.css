@@ -86,7 +86,7 @@ header {
   display: flex; align-items: center; justify-content: space-between;
   min-height: 70px;
   padding: 20px 28px; 
-  gap: 40px;
+  gap: 20px;
 }
 .logo { display: flex; align-items: center; gap: 18px; text-decoration: none; flex-shrink: 0; }
 /* .logo-flag { font-size: 60px; } */
@@ -102,13 +102,13 @@ header {
   font-size: 36px; color: var(--red); letter-spacing: 3px; line-height: 1.1;
 }
 .logo-sub { display: block; font-family: 'Formula1', sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 2px; }
-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+nav { display: flex; gap: 2px; flex-wrap: wrap; }
 nav a {
   color: var(--text2); text-decoration: none; font-family: 'Formula1', sans-serif;
-  font-size: 15px; font-weight: 700; letter-spacing: 0.5px; padding: 10px 18px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 9px 12px;
   border-radius: var(--radius); border: 1px solid transparent; transition: all .2s; white-space: nowrap;
 }
-nav a::first-letter {font-size: 32px;}
+nav a::first-letter {font-size: 24px;}
 nav a:hover { color: var(--text); background: var(--bg3); border-color: var(--border2); }
 nav a.active { color: var(--red); border-color: var(--red); background: var(--red-glow); box-shadow: 0 0 12px var(--red-glow); }
 
@@ -2807,3 +2807,40 @@ nav a.nav-logout:hover { background: rgba(255,201,6,.2); }
   .coll-cards-grid { grid-template-columns: repeat(2, 1fr); }
   .home-cta-btns { flex-wrap: wrap; justify-content: center; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MUSEO FANGIO — tema visual diferenciado (plus, no reemplaza al sitio)
+   Reutiliza toda la estructura existente: solo se re-mapean --red y
+   --gold a una paleta celeste/bronce (Argentina + vitrina de museo).
+   Todo lo que ya usa esas variables (badges, botones, bordes activos,
+   trofeos, etc.) hereda el nuevo tono automáticamente.
+   ═══════════════════════════════════════════════════════════════ */
+body.theme-fangio {
+  --red:       #4a8fd6;
+  --red-dark:  #326bb0;
+  --red-glow:  rgba(74,143,214,.18);
+  --gold:      #cfa15e;
+  --gold-dim:  rgba(207,161,94,.14);
+}
+
+/* El link del menú "Museo Fangio" se distingue un poco incluso fuera del tema,
+   para que se note que lleva a otra colección */
+nav a.nav-fangio {
+  border-color: rgba(74,143,214,.35);
+  color: #8fb9e0;
+}
+nav a.nav-fangio:hover,
+body.theme-fangio nav a.nav-fangio.active {
+  color: var(--text);
+  border-color: #4a8fd6;
+  background: rgba(74,143,214,.18);
+  box-shadow: 0 0 12px rgba(74,143,214,.18);
+}
+
+.fangio-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin: -12px 0 20px;
+}
+
+.fangio-title span { color: #cfa15e; }

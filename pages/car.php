@@ -11,18 +11,23 @@ if (!$car) {
     return;
 }
 
-$images  = getCarImages((int)$car['id']);
-$admin   = isAdmin();
-$adj     = getAdjacentCars((int)$car['id']);
+$images   = getCarImages((int)$car['id']);
+$admin    = isAdmin();
+$adj      = getAdjacentCars((int)$car['id']);
 $prevSlug = $adj['prev'] ? makeCarSlug($adj['prev']) : null;
 $nextSlug = $adj['next'] ? makeCarSlug($adj['next']) : null;
+
+$isFangioCar = ($car['category'] ?? 'f1') === 'fangio';
+$backPage    = $isFangioCar ? 'museo_fangio' : 'collection';
+$backLabel   = $isFangioCar ? '🏁 MUSEO FANGIO' : '🏁 COLECCIÓN';
+$backCrumb   = $isFangioCar ? 'Museo Fangio' : 'Colección';
 ?>
 
 <!-- Breadcrumb -->
 <nav class="car-breadcrumb">
   <a href="?page=home">Inicio</a>
   <span>›</span>
-  <a href="?page=collection">Colección</a>
+  <a href="?page=<?= $backPage ?>"><?= $backCrumb ?></a>
   <span>›</span>
   <span><?= htmlspecialchars($car['team']) ?> · <?= $car['year'] ?></span>
 </nav>
@@ -37,7 +42,7 @@ $nextSlug = $adj['next'] ? makeCarSlug($adj['next']) : null;
     <span class="car-nav-btn car-nav-disabled">‹</span>
   <?php endif; ?>
 
-  <a href="?page=collection" class="car-nav-mid">🏁 COLECCIÓN</a>
+  <a href="?page=<?= $backPage ?>" class="car-nav-mid"><?= $backLabel ?></a>
 
   <?php if ($adj['next']): ?>
     <a href="?page=car&slug=<?= htmlspecialchars($nextSlug) ?>" class="car-nav-btn car-nav-next">
@@ -135,6 +140,7 @@ $nextSlug = $adj['next'] ? makeCarSlug($adj['next']) : null;
   </div>
 </div>
 
+<?php if (!$isFangioCar): ?>
 <!-- ── Desempeño en temporada (full width) ── -->
 <div class="car-detail-performance" id="perfSection">
   <div class="car-detail-perf-header">
@@ -178,6 +184,7 @@ $nextSlug = $adj['next'] ? makeCarSlug($adj['next']) : null;
   </div>
   <?php endif; ?>
 </div>
+<?php endif; ?>
 
 <!-- ── Navegación inferior ── -->
 <div class="car-bottom-nav">

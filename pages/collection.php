@@ -13,10 +13,10 @@ $sortDir   = ($_GET['dir'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 $cars    = getCars($filters, $sortField, $sortDir);
 $teams   = getDistinct('team');
 $drivers = getDistinct('driver');
-$years   = getDB()->query("SELECT DISTINCT year FROM cars ORDER BY year")->fetchAll(PDO::FETCH_COLUMN);
+$years   = getDB()->query("SELECT DISTINCT year FROM cars WHERE category='f1' ORDER BY year")->fetchAll(PDO::FETCH_COLUMN);
 $makers  = getDistinct('maker');
 $admin   = isAdmin();
-
+$msg     = $_GET['msg'] ?? '';
 
 
 ?>
@@ -24,6 +24,10 @@ $admin   = isAdmin();
 <div class="page-title">🏎️ MODELOS <span> REALES Y A ESCALA</span></div>
 
 <!-- <div class="page-title">🏎️ LA <span>COLECCIÓN</span></div> -->
+
+<?php if ($msg === 'car_deleted'): ?>
+  <div class="alert alert-success">🗑️ Auto eliminado de la colección.</div>
+<?php endif; ?>
 
 <form method="get" class="filters" id="filterForm">
   <input type="hidden" name="page" value="collection">

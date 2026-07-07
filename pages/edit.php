@@ -12,6 +12,9 @@ if (!$car) {
 
 $msg = '';
 
+$isFangio = ($car['category'] ?? 'f1') === 'fangio';
+$backPage = $isFangio ? 'museo_fangio' : 'collection';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
         'year'        => (int)($_POST['year']       ?? 0),
@@ -23,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'note'        => trim($_POST['note']        ?? ''),
         'is_champion'      => isset($_POST['is_champion']) ? 1 : 0,
         'is_team_champion' => isset($_POST['is_team_champion']) ? 1 : 0,
+        'category'         => $car['category'] ?? 'f1', // la categoría no se edita desde este form
     ];
     if ($data['year'] && $data['team'] && $data['model']) {
         saveCar($data, $id);
@@ -36,19 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if (isset($_GET['msg'])) $msg = $_GET['msg'];
 
-$teams       = getDistinct('team');
-$makers      = getDistinct('maker');
-$collections = getDistinct('collection');
+$teams       = getDistinct('team', $isFangio ? 'fangio' : 'f1');
+$makers      = getDistinct('maker', $isFangio ? 'fangio' : 'f1');
+$collections = getDistinct('collection', $isFangio ? 'fangio' : 'f1');
 $images      = getCarImages($id);
 $coverId     = !empty($images) ? $images[0]['id'] : 0;
 
 $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
 ?>
 
-<div class="page-title">✏️ EDITAR <span>AUTO</span></div>
+<div class="page-title<?= $isFangio ? ' fangio-title' : '' ?>">✏️ EDITAR <span><?= $isFangio ? 'AUTO — MUSEO FANGIO' : 'AUTO' ?></span></div>
 
 <?php if ($msg === 'success'): ?>
-  <div class="alert alert-success">✅ Cambios guardados. <a href="?page=collection" style="color:inherit;font-weight:700">Ver colección →</a></div>
+  <div class="alert alert-success">✅ Cambios guardados. <a href="?page=<?= $backPage ?>" style="color:inherit;font-weight:700">Ver colección →</a></div>
 <?php elseif ($msg === 'img_deleted'): ?>
   <div class="alert alert-success">🗑️ Imagen eliminada.</div>
 <?php elseif ($msg === 'cover_set'): ?>
@@ -191,8 +195,21 @@ $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">💾 GUARDAR CAMBIOS</button>
-      <a href="?page=collection" class="btn btn-ghost">CANCELAR</a>
+      <a href="?page=<?= $backPage ?>" class="btn btn-ghost">CANCELAR</a>
     </div>
+  </form>
+</div>
+
+<!-- ══ ZONA DE PELIGRO ═══════════════════════════ -->
+<div class="form-card" style="margin-top:20px;border-color:rgba(255,59,48,.35);">
+  <div style="font-family:'Formula1',sans-serif;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:14px;">
+    ⚠️ ZONA DE PELIGRO
+  </div>
+  <form method="post" action="action.php"
+        onsubmit="return confirm('¿Eliminar definitivamente este auto (<?= $fv('team') ?> <?= $fv('model') ?>)? Esta acción no se puede deshacer y también borrará sus fotos.')">
+    <input type="hidden" name="action" value="delete_car">
+    <input type="hidden" name="car_id" value="<?= $id ?>">
+    <button type="submit" class="btn btn-danger">🗑️ ELIMINAR AUTO</button>
   </form>
 </div>
 

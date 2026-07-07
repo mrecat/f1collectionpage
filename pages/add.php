@@ -2,17 +2,22 @@
 requireAdmin();
 
 // Leer msg del redirect de action.php
-$msg = $_GET['msg'] ?? '';
+$msg      = $_GET['msg'] ?? '';
+$category = ($_GET['cat'] ?? '') === 'fangio' ? 'fangio' : 'f1';
+$isFangio = $category === 'fangio';
+$backPage = $isFangio ? 'museo_fangio' : 'collection';
 
-$teams       = getDistinct('team');
-$makers      = getDistinct('maker');
-$collections = getDistinct('collection');
+$teams       = getDistinct('team', $category);
+$makers      = getDistinct('maker', $category);
+$collections = getDistinct('collection', $category);
 ?>
 
-<div class="page-title">➕ AGREGAR <span>AUTO</span></div>
+<div class="page-title<?= $isFangio ? ' fangio-title' : '' ?>">
+  ➕ AGREGAR <span><?= $isFangio ? 'AUTO — MUSEO FANGIO' : 'AUTO' ?></span>
+</div>
 
 <?php if ($msg === 'success'): ?>
-  <div class="alert alert-success">✅ Auto agregado. <a href="?page=collection" style="color:inherit;font-weight:700">Ver colección →</a></div>
+  <div class="alert alert-success">✅ Auto agregado. <a href="?page=<?= $backPage ?>" style="color:inherit;font-weight:700">Ver colección →</a></div>
 <?php elseif ($msg === 'error'): ?>
   <div class="alert alert-error">❌ Completá al menos Año, Escudería y Modelo.</div>
 <?php endif; ?>
@@ -21,6 +26,7 @@ $collections = getDistinct('collection');
   <!-- action.php maneja el POST y el upload, sin depender del routing de index.php -->
   <form method="post" action="action.php" enctype="multipart/form-data">
     <input type="hidden" name="action" value="save_new_car">
+    <input type="hidden" name="category" value="<?= htmlspecialchars($category) ?>">
     <div class="form-grid">
 
       <div class="form-group">
@@ -81,8 +87,8 @@ $collections = getDistinct('collection');
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary">🏁 AGREGAR A LA PARRILLA</button>
-      <a href="?page=collection" class="btn btn-ghost">CANCELAR</a>
+      <button type="submit" class="btn btn-primary">🏁 <?= $isFangio ? 'AGREGAR AL MUSEO' : 'AGREGAR A LA PARRILLA' ?></button>
+      <a href="?page=<?= $backPage ?>" class="btn btn-ghost">CANCELAR</a>
     </div>
   </form>
 </div>

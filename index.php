@@ -10,9 +10,20 @@ if (in_array($page, $protectedPages)) {
     requireAdmin();
 }
 
+// ── Museo Fangio: detectar si esta vista pertenece a esa colección ────────
+// (se usa para aplicar el tema visual distinto sin tocar el resto del sitio)
+$isFangio = false;
+if ($page === 'museo_fangio') {
+    $isFangio = true;
+} elseif ($page === 'add' && ($_GET['cat'] ?? '') === 'fangio') {
+    $isFangio = true;
+}
+
 // ── SEO dinámico por página ───────────────────────────────────────────────
 $siteUrl  = 'https://f1collection.onrender.com';
 $siteImg  = $siteUrl . '/img/og-default.jpg'; // imagen por defecto para compartir
+
+$totalCarsSite = getTotalCars('f1') + getTotalCars('fangio');
 
 $seoTitle = 'F1 Collection — Museo privado de miniaturas de Fórmula 1';
 $seoDesc  = 'Colección personal de más de 240 miniaturas de Fórmula 1, desde 1936 hasta hoy. Autos reales y a escala de todas las épocas y escuderías.';
@@ -22,6 +33,7 @@ $seoUrl   = $siteUrl . '/?page=' . $page;
 if ($page === 'car' && isset($_GET['slug'])) {
     $carSeo = getCarBySlug($_GET['slug']);
     if ($carSeo) {
+        $isFangio = ($carSeo['category'] ?? 'f1') === 'fangio';
         $thumb = getFirstImage((int)$carSeo['id']);
         $seoTitle = $carSeo['year'] . ' ' . $carSeo['team'] . ' ' . $carSeo['model'] . ' — F1 Collection';
         $seoDesc  = $carSeo['driver']
@@ -31,9 +43,15 @@ if ($page === 'car' && isset($_GET['slug'])) {
         if ($thumb) $seoImg = $siteUrl . '/' . ltrim($thumb, '/');
         $seoUrl = $siteUrl . '/?page=car&slug=' . urlencode($_GET['slug']);
     }
+} elseif ($page === 'edit' && isset($_GET['id'])) {
+    $carEditSeo = getCarById((int)$_GET['id']);
+    if ($carEditSeo) $isFangio = ($carEditSeo['category'] ?? 'f1') === 'fangio';
 } elseif ($page === 'collection') {
     $seoTitle = 'Colección completa — F1 Collection';
-    $seoDesc  = 'Explorá los ' . getTotalCars() . ' autos de Fórmula 1 en escala de la colección: Ferrari, McLaren, Red Bull, Mercedes y más.';
+    $seoDesc  = 'Explorá los ' . getTotalCars('f1') . ' autos de Fórmula 1 en escala de la colección: Ferrari, McLaren, Red Bull, Mercedes y más.';
+} elseif ($page === 'museo_fangio') {
+    $seoTitle = 'Museo Fangio — F1 Collection';
+    $seoDesc  = 'La colección de autos de Juan Manuel Fangio, el quíntuple campeón mundial argentino.';
 } elseif ($page === 'stats') {
     $seoTitle = 'Estadísticas — F1 Collection';
     $seoDesc  = 'Estadísticas de la colección de miniaturas F1: por escudería, año, piloto y fabricante.';
@@ -80,7 +98,7 @@ if ($page === 'car' && isset($_GET['slug'])) {
 
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="<?= $isFangio ? 'theme-fangio' : '' ?>">
 
 <div class="track-line"></div>
 
@@ -100,9 +118,10 @@ if ($page === 'car' && isset($_GET['slug'])) {
       <a href="?page=miniaturas" class="<?= $page==='miniaturas'?'active':'' ?>">🔬 Miniaturas</a>
       <a href="?page=stats"      class="<?= $page==='stats'?'active':'' ?>">📊 Stats</a>
       <a href="?page=timeline"   class="<?= $page==='timeline'?'active':'' ?>">📅 Historia</a>
+      <a href="?page=museo_fangio" class="nav-fangio <?= $page==='museo_fangio'?'active':'' ?>">🔧 Museo Fangio</a>
       <a href="?page=about"      class="<?= $page==='about'?'active':'' ?>">👤 Sobre mí</a>
       <?php if (isAdmin()): ?>
-        <a href="?page=add" class="<?= $page==='add'?'active':'' ?>">➕ Agregar</a>
+        <a href="?page=add" class="<?= ($page==='add' && ($_GET['cat'] ?? '')!=='fangio')?'active':'' ?>">➕ Agregar</a>
         <a href="?logout=1" class="nav-logout" title="Cerrar sesión admin">🔓 SALIR</a>
       <?php endif; ?>
     </nav>
@@ -117,6 +136,7 @@ switch($page) {
   case 'timeline':   include 'pages/timeline.php';   break;
   case 'miniaturas': include 'pages/miniaturas.php';  break;
   case 'about':      include 'pages/about.php';      break;
+  case 'museo_fangio': include 'pages/museo_fangio.php'; break;
   case 'about_edit': include 'pages/about_edit.php'; break;
   case 'add':        include 'pages/add.php';        break;
   case 'edit':       include 'pages/edit.php';       break;
@@ -131,7 +151,7 @@ switch($page) {
 <div class="track-line bottom"></div>
 
 <footer>
-  <span><?= SITE_NAME ?> &copy; <?= date('Y') ?> &mdash; <?= getTotalCars() ?> autos en la parrilla</span>
+  <span><?= SITE_NAME ?> &copy; <?= date('Y') ?> &mdash; <?= $totalCarsSite ?> autos en la parrilla</span>
   <?php if (!isAdmin()): ?>
     <a href="?page=login" class="footer-admin-link">🔒</a>
   <?php endif; ?>

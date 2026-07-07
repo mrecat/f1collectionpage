@@ -19,11 +19,14 @@ $image_id = (int)($_POST['image_id'] ?? 0);
 switch ($action) {
 
     case 'delete_car':
+        $redirectPage = 'home';
         if ($car_id) {
+            $carToDelete = getCarById($car_id);
+            $redirectPage = (($carToDelete['category'] ?? 'f1') === 'fangio') ? 'museo_fangio' : 'collection';
             deleteAllCarImages($car_id);
             deleteCar($car_id);
         }
-        header("Location: {$base}/index.php?page=home");
+        header("Location: {$base}/index.php?page={$redirectPage}&msg=car_deleted");
         exit;
 
     case 'delete_image':
@@ -52,6 +55,7 @@ switch ($action) {
         exit;
 
     case 'save_new_car':
+        $category = ($_POST['category'] ?? '') === 'fangio' ? 'fangio' : 'f1';
         $data = [
             'year'       => (int)($_POST['year']       ?? 0),
             'team'       => trim($_POST['team']        ?? ''),
@@ -60,14 +64,16 @@ switch ($action) {
             'maker'      => trim($_POST['maker']       ?? ''),
             'collection' => trim($_POST['collection']  ?? ''),
             'note'       => trim($_POST['note']        ?? ''),
+            'category'   => $category,
         ];
+        $catParam = $category === 'fangio' ? '&cat=fangio' : '';
         if ($data['year'] && $data['team'] && $data['model']) {
             saveCar($data);
             $newId = (int)getDB()->lastInsertId();
             handleMultiImageUpload($newId);
-            header("Location: {$base}/index.php?page=add&msg=success");
+            header("Location: {$base}/index.php?page=add{$catParam}&msg=success");
         } else {
-            header("Location: {$base}/index.php?page=add&msg=error");
+            header("Location: {$base}/index.php?page=add{$catParam}&msg=error");
         }
         exit;
 

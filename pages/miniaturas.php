@@ -8,7 +8,7 @@ $filters = [
 ];
 
 $items       = getMiniaturas($filters);
-$years       = getDB()->query("SELECT DISTINCT year FROM cars ORDER BY year")->fetchAll(PDO::FETCH_COLUMN);
+$years       = getDB()->query("SELECT DISTINCT year FROM cars WHERE category='f1' ORDER BY year")->fetchAll(PDO::FETCH_COLUMN);
 $teams       = getDistinct('team');
 $collections = getDistinct('collection');
 $admin       = isAdmin();
