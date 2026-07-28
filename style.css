@@ -90,6 +90,9 @@ header {
 }
 .logo { display: flex; align-items: center; gap: 18px; text-decoration: none; flex-shrink: 0; }
 /* .logo-flag { font-size: 60px; } */
+.nav-flag-icon {
+  display: inline-block;
+}
 .logo-flag {
   width: 80px;
   height: auto;
@@ -107,6 +110,7 @@ nav a {
   color: var(--text2); text-decoration: none; font-family: 'Formula1', sans-serif;
   font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 9px 12px;
   border-radius: var(--radius); border: 1px solid transparent; transition: all .2s; white-space: nowrap;
+  display: inline-flex; align-items: center;
 }
 nav a::first-letter {font-size: 24px;}
 nav a:hover { color: var(--text); background: var(--bg3); border-color: var(--border2); }
@@ -2826,8 +2830,11 @@ body.theme-fangio {
 /* El link del menú "Museo Fangio" se distingue un poco incluso fuera del tema,
    para que se note que lleva a otra colección */
 nav a.nav-fangio {
-  border-color: rgba(74,143,214,.35);
   color: #8fb9e0;
+  gap: 6px;
+}
+nav a.nav-fangio::first-letter {
+  font-size: 13px;
 }
 nav a.nav-fangio:hover,
 body.theme-fangio nav a.nav-fangio.active {

@@ -26,7 +26,7 @@ $siteImg  = $siteUrl . '/img/og-default.jpg'; // imagen por defecto para compart
 $totalCarsSite = getTotalCars('f1') + getTotalCars('fangio');
 
 $seoTitle = 'F1 Collection — Museo privado de miniaturas de Fórmula 1';
-$seoDesc  = 'Colección personal de más de 240 miniaturas de Fórmula 1, desde 1936 hasta hoy. Autos reales y a escala de todas las épocas y escuderías.';
+$seoDesc  = 'Colección personal de más de 200 miniaturas de Fórmula 1, desde 1936 hasta hoy. Autos reales y a escala de todas las épocas y escuderías.';
 $seoImg   = $siteImg;
 $seoUrl   = $siteUrl . '/?page=' . $page;
 
@@ -63,7 +63,7 @@ if ($page === 'car' && isset($_GET['slug'])) {
     $seoDesc  = 'Las miniaturas a escala de la colección: IXO, BBurago, Spark, Salvat y más fabricantes.';
 } elseif ($page === 'about') {
     $seoTitle = 'Sobre la colección — F1 Collection';
-    $seoDesc  = '13 años coleccionando miniaturas de Fórmula 1. La historia detrás de más de 240 autos a escala.';
+    $seoDesc  = '13 años coleccionando miniaturas de Fórmula 1.';
 }
 ?>
 <!DOCTYPE html>
@@ -118,7 +118,7 @@ if ($page === 'car' && isset($_GET['slug'])) {
       <a href="?page=miniaturas" class="<?= $page==='miniaturas'?'active':'' ?>">🔬 Miniaturas</a>
       <a href="?page=stats"      class="<?= $page==='stats'?'active':'' ?>">📊 Stats</a>
       <a href="?page=timeline"   class="<?= $page==='timeline'?'active':'' ?>">📅 Historia</a>
-      <a href="?page=museo_fangio" class="nav-fangio <?= $page==='museo_fangio'?'active':'' ?>">🔧 Museo Fangio</a>
+      <a href="?page=museo_fangio" class="nav-fangio <?= $page==='museo_fangio'?'active':'' ?>"><svg width="34" height="22" viewBox="0 0 20 13" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><rect width="20" height="13" fill="#75AADB"/><rect y="4.33" width="20" height="4.33" fill="#FFFFFF"/><circle cx="10" cy="6.5" r="1.6" fill="#F6B40E" stroke="#85340A" stroke-width="0.2"/></svg>Museo Fangio</a>
       <a href="?page=about"      class="<?= $page==='about'?'active':'' ?>">👤 Sobre mí</a>
       <?php if (isAdmin()): ?>
         <a href="?page=add" class="<?= ($page==='add' && ($_GET['cat'] ?? '')!=='fangio')?'active':'' ?>">➕ Agregar</a>
