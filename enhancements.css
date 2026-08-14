@@ -1,0 +1,162 @@
+/* ═══════════════════════════════════════════════════════════
+   F1 COLLECTION — ENHANCEMENTS.CSS
+   Efectos modernos sumados SIN tocar style.css.
+   Se carga DESPUÉS de style.css para poder sobreescribir
+   puntualmente (transiciones de modal, hover, etc).
+
+   Integración en index.php (una sola línea, después de style.css):
+   <link rel="stylesheet" href="enhancements.css">
+   ═══════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────
+   1. SCROLL REVEAL
+   Se aplica automáticamente por JS a .coll-card,
+   .mini-card y .car-card-detail (ver enhancements.js).
+   No requiere tocar el PHP.
+   ─────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.reveal.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transition: none; opacity: 1; transform: none; }
+}
+
+/* ───────────────────────────────────────────
+   2. FADE-IN DE IMÁGENES AL CARGAR
+   El JS agrega .img-loaded cuando la imagen termina de cargar.
+   Aplica a las fotos de .coll-card-img, .mini-card-img y .car-thumb.
+   ─────────────────────────────────────────── */
+.coll-card-img img,
+.mini-card-img img,
+.car-thumb {
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.coll-card-img img.img-loaded,
+.mini-card-img img.img-loaded,
+.car-thumb.img-loaded {
+  opacity: 1;
+}
+/* Shimmer de fondo mientras carga. Solo aparece si hay <img> sin
+   cargar todavía — así las cards sin foto (con el emoji 🏎️/🔬)
+   nunca quedan con un shimmer animando de por vida. */
+.coll-card-img, .mini-card-img {
+  position: relative;
+}
+.coll-card-img:has(img:not(.img-loaded))::before,
+.mini-card-img:has(img:not(.img-loaded))::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg,
+    transparent 20%, rgba(255,255,255,.06) 50%, transparent 80%);
+  background-size: 200% 100%;
+  animation: f1-shimmer 1.4s infinite;
+  pointer-events: none;
+}
+@keyframes f1-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ───────────────────────────────────────────
+   3. MODAL — transición suave de apertura/cierre
+   Sobreescribe el display:none/flex instantáneo por
+   una transición de opacidad + escala en ambas direcciones.
+   Aplica tanto al modal de detalle (.modal-box) como al
+   de comparación real/escala (.mini-modal-box).
+   ─────────────────────────────────────────── */
+.modal-overlay {
+  display: flex !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .25s ease, visibility 0s linear .25s;
+}
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity .25s ease;
+}
+.modal-box,
+.mini-modal-box {
+  animation: none !important; /* reemplaza el modalIn original por la transición de abajo */
+  transform: scale(.94) translateY(14px);
+  opacity: 0;
+  transition: transform .32s cubic-bezier(.34,1.56,.64,1), opacity .28s ease;
+}
+.modal-overlay.open .modal-box,
+.modal-overlay.open .mini-modal-box {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* ───────────────────────────────────────────
+   4. FAVORITO — micro-pop al togglear
+   El JS agrega .fav-pop momentáneamente al hacer click
+   en .fav-btn (favorites.php).
+   ─────────────────────────────────────────── */
+.fav-btn.fav-pop {
+  animation: f1-fav-pop .4s ease;
+}
+@keyframes f1-fav-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.5) rotate(-10deg); }
+  70%  { transform: scale(.92) rotate(6deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* ───────────────────────────────────────────
+   5. BOTONES CON ESTADO "procesando"
+   El JS agrega .btn-loading a botones dentro de forms
+   de acciones destructivas/lentas (eliminar auto, subir foto).
+   ─────────────────────────────────────────── */
+.btn.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.btn.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 14px; height: 14px;
+  top: 50%; left: 50%;
+  margin: -7px 0 0 -7px;
+  border: 2px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: f1-spin .7s linear infinite;
+}
+@keyframes f1-spin { to { transform: rotate(360deg); } }
+
+/* ───────────────────────────────────────────
+   6. NAVEGACIÓN ENTRE PÁGINAS (View Transitions API)
+   Efecto de fundido nativo del navegador al pasar de una
+   página PHP a otra (ej: collection -> car detail).
+   Cero JS, cero riesgo: si el navegador no lo soporta
+   (ej. Firefox), simplemente no pasa nada raro.
+   ─────────────────────────────────────────── */
+@view-transition {
+  navigation: auto;
+}
+
+/* ───────────────────────────────────────────
+   7. HOVER extra en año/badge de las cards
+   Pequeño realce en el chip de año al hacer hover en la card,
+   sumado al scale de imagen que ya tenías.
+   ─────────────────────────────────────────── */
+.coll-card-year, .mini-card-year {
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.coll-card:hover .coll-card-year,
+.mini-card:hover .mini-card-year {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,.4);
+}

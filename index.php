@@ -97,6 +97,7 @@ if ($page === 'car' && isset($_GET['slug'])) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="enhancements.css">
 </head>
 <body class="<?= $isFangio ? 'theme-fangio' : '' ?>">
 
@@ -158,5 +159,6 @@ switch($page) {
 </footer>
 
 <script src="app.js"></script>
+<script src="enhancements.js"></script>
 </body>
 </html>

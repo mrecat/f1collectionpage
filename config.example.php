@@ -1,18 +1,17 @@
 <?php
 // ═══════════════════════════════════════════════════
-// F1 COLLECTION — CONFIGURACIÓN
-// Editá estas líneas antes de subir al servidor
+// F1 COLLECTION — CONFIGURACIÓN (PLANTILLA)
+// Copiá este archivo como config.php y completá tus datos.
+// config.php NO debe subirse al repo (ver .gitignore).
 // ═══════════════════════════════════════════════════
 
 // Usuario del administrador
 define('ADMIN_USER', 'admin');
 
-// Hash de la contraseña del administrador (NO la contraseña en texto plano).
-// Este hash corresponde a la contraseña: Algo.1234
-// Si querés cambiarla en el futuro, generá un nuevo hash con:
-// php -r "echo password_hash('TU_NUEVA_CONTRASEÑA', PASSWORD_DEFAULT);"
-// y reemplazá el valor de abajo por lo que te devuelva ese comando.
-define('ADMIN_PASSWORD_HASH', '$2b$10$i.540NvTw.Q88zcRctwcIOnEJMhK4WgqyuQmU/ClFTt8TMV/./1LC');
+// Hash de la contraseña del administrador (NO poner la contraseña en texto plano).
+// Generalo con:
+// php -r "echo password_hash('TU_CONTRASEÑA', PASSWORD_DEFAULT);"
+define('ADMIN_PASSWORD_HASH', 'PEGÁ_ACÁ_TU_HASH_GENERADO');
 
 // Nombre del sitio (aparece en el título y el header)
 define('SITE_NAME', 'F1 COLLECTION');

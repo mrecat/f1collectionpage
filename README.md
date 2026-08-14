@@ -6,7 +6,7 @@
 Abrí el archivo `config.php` y cambiá:
 ```php
 define('ADMIN_USER',     'admin');        // ← tu usuario
-define('ADMIN_PASSWORD', ''); // ← tu contraseña
+define('ADMIN_PASSWORD', 'f1collection2025'); // ← tu contraseña
 ```
 
 ### 2. Subí los archivos
