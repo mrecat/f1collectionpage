@@ -151,6 +151,27 @@ switch($page) {
 
 <div class="track-line bottom"></div>
 
+<!-- ── Command palette (Ctrl+K) ── -->
+<div class="cmdk-overlay" id="cmdkOverlay">
+  <div class="cmdk-box">
+    <div class="cmdk-input-row">
+      <span class="cmdk-icon">🔍</span>
+      <input type="text" id="cmdkInput" class="cmdk-input" placeholder="Buscar piloto, escudería, auto, año…" autocomplete="off">
+      <span class="cmdk-esc">ESC</span>
+    </div>
+    <div class="cmdk-results" id="cmdkResults"></div>
+  </div>
+</div>
+
+<!-- ── Volver arriba ── -->
+<button class="back-to-top" id="backToTop" aria-label="Volver arriba">
+  <svg class="back-to-top-ring" viewBox="0 0 40 40">
+    <circle class="back-to-top-ring-bg" cx="20" cy="20" r="17"></circle>
+    <circle class="back-to-top-ring-fg" id="backToTopRing" cx="20" cy="20" r="17"></circle>
+  </svg>
+  <span>▲</span>
+</button>
+
 <footer>
   <span><?= SITE_NAME ?> &copy; <?= date('Y') ?> &mdash; <?= $totalCarsSite ?> autos en la parrilla</span>
   <?php if (!isAdmin()): ?>
@@ -159,6 +180,25 @@ switch($page) {
 </footer>
 
 <script src="app.js"></script>
+<script>
+// ── Datos para el buscador rápido (Ctrl+K) ────────────────────
+// Liviano a propósito: solo lo esencial para buscar y armar el link.
+window.__F1_SEARCH_DATA__ = <?php
+    $allCarsSearch = array_merge(
+        getCars([], 'year', 'asc', 'f1'),
+        getCars([], 'year', 'asc', 'fangio')
+    );
+    echo json_encode(array_map(function ($c) {
+        return [
+            'y' => (int)$c['year'],
+            't' => $c['team'],
+            'm' => $c['model'],
+            'd' => $c['driver'],
+            's' => makeCarSlug($c),
+        ];
+    }, $allCarsSearch), JSON_UNESCAPED_UNICODE);
+?>;
+</script>
 <script src="enhancements.js"></script>
 </body>
 </html>

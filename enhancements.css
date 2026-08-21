@@ -160,3 +160,382 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0,0,0,.4);
 }
+
+/* ───────────────────────────────────────────
+   8. GALERÍA DE FOTOS — car.php (detalle de auto)
+   Transición de crossfade + slide direccional al
+   cambiar de foto (prev/next/miniatura), controlada
+   desde el JS embebido en car.php (galSetImage()).
+   ─────────────────────────────────────────── */
+.car-gallery-main img {
+  transition: opacity .22s ease, transform .22s ease;
+}
+.car-gallery-main img.gal-out-left  { opacity: 0; transform: translateX(-28px); }
+.car-gallery-main img.gal-out-right { opacity: 0; transform: translateX(28px); }
+.car-gallery-main img.gal-out-fade  { opacity: 0; }
+.car-gallery-main img.gal-in-left,
+.car-gallery-main img.gal-in-right,
+.car-gallery-main img.gal-in-fade {
+  transition: none;
+}
+.car-gallery-main img.gal-in-left   { opacity: 0; transform: translateX(-28px); }
+.car-gallery-main img.gal-in-right  { opacity: 0; transform: translateX(28px); }
+.car-gallery-main img.gal-in-fade   { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .car-gallery-main img { transition: opacity .15s ease !important; }
+  .car-gallery-main img.gal-out-left,
+  .car-gallery-main img.gal-out-right,
+  .car-gallery-main img.gal-in-left,
+  .car-gallery-main img.gal-in-right { transform: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RONDA 2 — chiches nuevos
+   ═══════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────
+   9. TRADING CARD — hover 3D + brillo diagonal
+   Aplica automáticamente (por JS) a .coll-card y .mini-card.
+   ─────────────────────────────────────────── */
+.coll-card, .mini-card {
+  transform-style: preserve-3d;
+  transition: transform .12s ease, box-shadow .3s ease, border-color .2s ease;
+  position: relative;
+}
+.coll-card.tc-active, .mini-card.tc-active {
+  box-shadow: 0 20px 45px rgba(0,0,0,.5);
+  z-index: 3;
+}
+.tc-shine {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255,255,255,.16) 45%,
+    rgba(255,255,255,.28) 50%,
+    rgba(255,255,255,.16) 55%,
+    transparent 70%
+  );
+  background-size: 250% 250%;
+  opacity: 0;
+  transition: opacity .2s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.coll-card.tc-active .tc-shine, .mini-card.tc-active .tc-shine {
+  opacity: 1;
+}
+@media (hover: none) {
+  /* En touch no hay mousemove real — no forzamos el efecto */
+  .tc-shine { display: none; }
+}
+
+/* ───────────────────────────────────────────
+   10. STATS — contador animado
+   El número final ya está en el HTML (ej: 214); el JS lo
+   anima desde 0. Requiere que .s2-kpi-n tenga solo dígitos.
+   ─────────────────────────────────────────── */
+.s2-kpi-n.counting { font-variant-numeric: tabular-nums; }
+
+/* ───────────────────────────────────────────
+   11. BADGE CAMPEÓN — sweep de brillo (foil)
+   Se suma al glow que ya tenías (trophyGlow), no lo reemplaza.
+   ─────────────────────────────────────────── */
+.car-champion-trophy, .car-team-champion-trophy {
+  position: relative;
+  overflow: hidden;
+}
+.car-champion-trophy::before,
+.car-team-champion-trophy::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent, rgba(255,255,255,.55), transparent
+  );
+  transform: skewX(-20deg);
+  animation: f1-foil-sweep 3.2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+@keyframes f1-foil-sweep {
+  0%   { left: -60%; }
+  35%  { left: 130%; }
+  100% { left: 130%; }
+}
+
+/* ───────────────────────────────────────────
+   12. ZOOM en la foto principal de la galería (car.php)
+   Click abre un lightbox simple con la imagen ampliada.
+   ─────────────────────────────────────────── */
+.car-gallery-main { cursor: zoom-in; }
+.gal-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility 0s linear .25s;
+  cursor: zoom-out;
+}
+.gal-lightbox.open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .25s ease;
+}
+.gal-lightbox img {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 8px;
+  transform: scale(.92);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.gal-lightbox.open img {
+  transform: scale(1);
+}
+.gal-lightbox-close {
+  position: absolute;
+  top: 18px; right: 24px;
+  color: #fff;
+  font-size: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: .8;
+  transition: opacity .2s;
+}
+.gal-lightbox-close:hover { opacity: 1; }
+
+/* ───────────────────────────────────────────
+   13. TIMELINE — riel de progreso al hacer scroll
+   Aplica solo si existe #erasGrid en la página.
+   ─────────────────────────────────────────── */
+.tl-progress-rail {
+  position: fixed;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 40vh;
+  background: var(--border, rgba(255,255,255,.12));
+  border-radius: 3px;
+  z-index: 50;
+  overflow: hidden;
+}
+.tl-progress-fill {
+  width: 100%;
+  height: 0%;
+  background: var(--red);
+  border-radius: 3px;
+  transition: height .1s linear;
+}
+@media (max-width: 900px) {
+  .tl-progress-rail { display: none; } /* en mobile no hay espacio lateral */
+}
+
+/* ───────────────────────────────────────────
+   14. TOASTS — reemplazan los .alert estáticos
+   El JS mueve el contenido de .alert acá adentro.
+   ─────────────────────────────────────────── */
+#f1-toast-container {
+  position: fixed;
+  bottom: 90px; /* despejado del botón "volver arriba" */
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(360px, 90vw);
+}
+.f1-toast {
+  background: var(--bg2, #16181c);
+  border: 1px solid var(--border, rgba(255,255,255,.12));
+  border-left: 4px solid #00d460;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text, #eee);
+  box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity .3s ease, transform .3s ease;
+}
+.f1-toast.f1-toast-error { border-left-color: var(--red); }
+.f1-toast.f1-toast-show { opacity: 1; transform: translateX(0); }
+.f1-toast.f1-toast-hide { opacity: 0; transform: translateX(30px); }
+.f1-toast a { color: inherit; }
+
+/* ───────────────────────────────────────────
+   15. BARRA DE PROGRESO DE NAVEGACIÓN
+   Corre arriba de todo mientras se carga la próxima página.
+   ─────────────────────────────────────────── */
+#f1-nav-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--red);
+  z-index: 2000;
+  transition: width .3s ease, opacity .3s ease;
+  box-shadow: 0 0 8px var(--red);
+}
+#f1-nav-progress.f1-nav-done {
+  width: 100%;
+  opacity: 0;
+}
+
+/* ───────────────────────────────────────────
+   16. COMMAND PALETTE (Ctrl+K)
+   ─────────────────────────────────────────── */
+.cmdk-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(2px);
+  z-index: 1500;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .18s ease, visibility 0s linear .18s;
+}
+.cmdk-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .18s ease;
+}
+.cmdk-box {
+  width: min(560px, 90vw);
+  background: var(--bg2, #16181c);
+  border: 1px solid var(--border, rgba(255,255,255,.15));
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.55);
+  overflow: hidden;
+  transform: translateY(-14px);
+  transition: transform .2s ease;
+}
+.cmdk-overlay.open .cmdk-box { transform: translateY(0); }
+.cmdk-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,.1));
+}
+.cmdk-icon { font-size: 16px; opacity: .6; }
+.cmdk-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text, #eee);
+  font-size: 16px;
+  font-family: inherit;
+}
+.cmdk-esc {
+  font-size: 10px;
+  color: var(--muted, #888);
+  border: 1px solid var(--border, rgba(255,255,255,.2));
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.cmdk-results {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.cmdk-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 11px 16px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.cmdk-item:hover, .cmdk-item.active {
+  background: rgba(255,255,255,.06);
+  border-left-color: var(--red);
+}
+.cmdk-item-year {
+  font-family: 'Formula1', sans-serif;
+  color: var(--red);
+  font-size: 12px;
+  min-width: 34px;
+}
+.cmdk-item-main { flex: 1; font-size: 14px; color: var(--text, #eee); }
+.cmdk-item-sub { font-size: 12px; color: var(--muted, #888); }
+.cmdk-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--muted, #888);
+  font-size: 13px;
+}
+.cmdk-hint {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--muted, #888);
+  font-size: 13px;
+}
+
+/* ───────────────────────────────────────────
+   17. VOLVER ARRIBA — con anillo de progreso
+   ─────────────────────────────────────────── */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: var(--bg2, #16181c);
+  border: 1px solid var(--border, rgba(255,255,255,.15));
+  color: var(--text, #eee);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  z-index: 900;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
+}
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.back-to-top:hover { background: var(--bg3, #1e2126); }
+.back-to-top-ring {
+  position: absolute;
+  inset: 0;
+  width: 46px; height: 46px;
+  transform: rotate(-90deg);
+}
+.back-to-top-ring-bg {
+  fill: none;
+  stroke: var(--border, rgba(255,255,255,.12));
+  stroke-width: 2;
+}
+.back-to-top-ring-fg {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 107; /* 2 * PI * 17 */
+  stroke-dashoffset: 107;
+  transition: stroke-dashoffset .1s linear;
+}

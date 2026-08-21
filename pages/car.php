@@ -210,21 +210,77 @@ $backCrumb   = $isFangioCar ? 'Museo Fangio' : 'Colección';
 <script>
 var _imgs = <?= json_encode(array_map(fn($i) => $i['path'], $images)) ?>;
 var _curr = 0;
+var _galAnimating = false;
 
-function galTo(n) {
-  _curr = n;
-  document.getElementById('galleryMainImg').src = _imgs[n];
+// Precarga todas las fotos de la galería en segundo plano, para que
+// el cambio de foto no "pise" a mitad de descarga.
+_imgs.forEach(function(src) { var p = new Image(); p.src = src; });
+
+function updateGalUI(n) {
   document.getElementById('galCurr') && (document.getElementById('galCurr').textContent = n + 1);
-  document.querySelectorAll('.car-gal-thumb').forEach(function(t, i) {
-    t.classList.toggle('active', i === n);
-  });
-  // Scroll thumb into view
   var thumbs = document.querySelectorAll('.car-gal-thumb');
+  thumbs.forEach(function(t, i) { t.classList.toggle('active', i === n); });
   if (thumbs[n]) thumbs[n].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 }
 
-function galShift(d) {
-  galTo((_curr + d + _imgs.length) % _imgs.length);
+function galSetImage(n, dir) {
+  if (_galAnimating || n === _curr || !_imgs[n]) return;
+  var imgEl = document.getElementById('galleryMainImg');
+  _galAnimating = true;
+
+  var outClass = dir === 1 ? 'gal-out-left' : dir === -1 ? 'gal-out-right' : 'gal-out-fade';
+  var inClass  = dir === 1 ? 'gal-in-right' : dir === -1 ? 'gal-in-left'  : 'gal-in-fade';
+
+  imgEl.classList.add(outClass);
+
+  setTimeout(function() {
+    imgEl.src = _imgs[n];
+    imgEl.classList.remove(outClass);
+    imgEl.classList.add(inClass);
+    // Doble rAF: fuerza al navegador a "pintar" la posición de entrada
+    // antes de sacarle la clase y disparar la transición de vuelta al centro.
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        imgEl.classList.remove(inClass);
+        _galAnimating = false;
+      });
+    });
+    _curr = n;
+    updateGalUI(n);
+  }, 220);
+}
+
+function galTo(n)    { galSetImage(n, 0); }
+function galShift(d) { galSetImage((_curr + d + _imgs.length) % _imgs.length, d); }
+
+// ── Navegación por teclado (← →) ──────────────────
+if (_imgs.length > 1) {
+  document.addEventListener('keydown', function(e) {
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (e.key === 'ArrowLeft')  galShift(-1);
+    if (e.key === 'ArrowRight') galShift(1);
+  });
+
+  // ── Swipe táctil en mobile ─────────────────────
+  (function() {
+    var mainEl = document.getElementById('galleryMain');
+    var startX = 0, startY = 0, tracking = false;
+    mainEl.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive: true });
+    mainEl.addEventListener('touchend', function(e) {
+      if (!tracking) return;
+      tracking = false;
+      var dx = e.changedTouches[0].clientX - startX;
+      var dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        galShift(dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+  })();
 }
 
 // ── Performance edit / AI generate ────────────────

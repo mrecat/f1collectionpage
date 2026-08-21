@@ -2851,3 +2851,17 @@ body.theme-fangio nav a.nav-fangio.active {
 }
 
 .fangio-title span { color: #cfa15e; }
+
+/* --- Agrandar texto e íconos del menú --- */
+
+/* 1. Tamaño del texto de las opciones del menú */
+nav a {
+  font-size: 17px !important; /* 👈 Cambiá 16px por el tamaño de texto que quieras */
+}
+
+
+/* 3. Tamaño de la bandera del Museo Fangio */
+nav a.nav-fangio svg {
+  width: 24px !important; /* 👈 Ajustá el ancho de la bandera */
+  height: auto !important;
+}
