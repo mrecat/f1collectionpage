@@ -1,7 +1,0 @@
-# No subir la configuración real (usuario/contraseña) al repo
-config.php
-
-# Base de datos y fotos (si preferís no versionarlas)
-data/collection.db
-data/images/*
-!data/images/.gitkeep
