@@ -607,7 +607,9 @@ function getHomeData(string $category = 'f1'): array {
         LIMIT 1
     ")->fetch();
 
-    // Mosaico: 12 autos con foto variados por era — incluye driver para hover
+    // Mosaico: autos con foto variados por era — incluye driver para hover.
+    // Traemos más de los que se muestran (12): el resto queda como "pool"
+    // para que el home vaya rotando fotos del mosaico con el tiempo.
     $mosaic = $db->query("
         SELECT c.id, c.year, c.team, c.model, c.driver,
                (SELECT path FROM car_images ci WHERE ci.car_id = c.id
@@ -615,7 +617,7 @@ function getHomeData(string $category = 'f1'): array {
         FROM cars c
         WHERE EXISTS (SELECT 1 FROM car_images ci WHERE ci.car_id = c.id) AND c.category = '$cat'
         ORDER BY RANDOM()
-        LIMIT 12
+        LIMIT 36
     ")->fetchAll();
 
     // Últimos 3 autos agregados (mayor id con imagen)

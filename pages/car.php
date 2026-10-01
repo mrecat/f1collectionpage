@@ -247,6 +247,7 @@ function galSetImage(n, dir) {
     });
     _curr = n;
     updateGalUI(n);
+    if (typeof scheduleAutoRotate === 'function') scheduleAutoRotate();
   }, 220);
 }
 
@@ -263,8 +264,8 @@ if (_imgs.length > 1) {
   });
 
   // ── Swipe táctil en mobile ─────────────────────
+  var mainEl = document.getElementById('galleryMain');
   (function() {
-    var mainEl = document.getElementById('galleryMain');
     var startX = 0, startY = 0, tracking = false;
     mainEl.addEventListener('touchstart', function(e) {
       startX = e.touches[0].clientX;
@@ -281,6 +282,38 @@ if (_imgs.length > 1) {
       }
     }, { passive: true });
   })();
+
+  // ── Rotación automática entre fotos (ej: auto ⇄ miniatura) ──
+  var AUTO_ROTATE_MS = 4000;
+  var _autoRotateTimer = null;
+  var _autoRotatePaused = false;
+
+  function scheduleAutoRotate() {
+    clearTimeout(_autoRotateTimer);
+    if (_autoRotatePaused) return;
+    _autoRotateTimer = setTimeout(function() { galShift(1); }, AUTO_ROTATE_MS);
+  }
+
+  // Pausa al pasar el mouse (desktop) y retoma al salir
+  mainEl.addEventListener('mouseenter', function() {
+    _autoRotatePaused = true;
+    clearTimeout(_autoRotateTimer);
+  });
+  mainEl.addEventListener('mouseleave', function() {
+    _autoRotatePaused = false;
+    scheduleAutoRotate();
+  });
+
+  // Pausa si la pestaña no está visible, retoma al volver
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      clearTimeout(_autoRotateTimer);
+    } else if (!_autoRotatePaused) {
+      scheduleAutoRotate();
+    }
+  });
+
+  scheduleAutoRotate();
 }
 
 // ── Performance edit / AI generate ────────────────

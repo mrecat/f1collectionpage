@@ -13,6 +13,23 @@ $mosaicSlugs = [];
 foreach ($d['mosaic'] as $m) {
     $mosaicSlugs[] = htmlspecialchars(makeCarSlug($m));
 }
+
+// Mosaico: 12 tiles visibles + el resto como "pool" para ir rotando fotos
+$mosaicVisible = array_slice($d['mosaic'], 0, 12);
+$mosaicVisibleSlugs = array_slice($mosaicSlugs, 0, 12);
+$mosaicPool = array_slice($d['mosaic'], 12);
+$mosaicPoolSlugs = array_slice($mosaicSlugs, 12);
+$mosaicPoolJson = [];
+foreach ($mosaicPool as $i => $m) {
+    $mosaicPoolJson[] = [
+        'thumb'  => $m['thumb'],
+        'year'   => $m['year'],
+        'team'   => $m['team'],
+        'model'  => $m['model'],
+        'driver' => $m['driver'],
+        'slug'   => $mosaicPoolSlugs[$i],
+    ];
+}
 ?>
 
 <!-- HERO -->
@@ -66,15 +83,15 @@ foreach ($d['mosaic'] as $m) {
 </div>
 
 <!-- MOSAICO -->
-<?php if (!empty($d['mosaic'])): ?>
+<?php if (!empty($mosaicVisible)): ?>
 <div class="home-mosaic-section">
   <div class="home-section-header">
     <div class="home-section-title">ALGUNOS AUTOS DE LA COLECCIÓN</div>
     <a href="?page=collection" class="home-section-link">Ver todos →</a>
   </div>
-  <div class="home-mosaic">
-    <?php foreach ($d['mosaic'] as $i => $m): ?>
-    <a href="?page=car&slug=<?= $mosaicSlugs[$i] ?>" class="home-mosaic-item">
+  <div class="home-mosaic" id="homeMosaic">
+    <?php foreach ($mosaicVisible as $i => $m): ?>
+    <a href="?page=car&slug=<?= $mosaicVisibleSlugs[$i] ?>" class="home-mosaic-item">
       <img src="<?= htmlspecialchars($m['thumb']) ?>" alt="<?= htmlspecialchars($m['model']) ?>">
       <div class="home-mosaic-overlay">
         <span class="home-mosaic-year"><?= $m['year'] ?></span>
@@ -88,6 +105,9 @@ foreach ($d['mosaic'] as $m) {
     <?php endforeach; ?>
   </div>
 </div>
+<?php if (!empty($mosaicPoolJson)): ?>
+<script>window.__F1_MOSAIC_POOL__ = <?= json_encode($mosaicPoolJson) ?>;</script>
+<?php endif; ?>
 <?php endif; ?>
 
 <!-- ÚLTIMAS INCORPORACIONES — CARRUSEL -->

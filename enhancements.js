@@ -348,4 +348,118 @@ document.addEventListener('DOMContentLoaded', () => {
     navBar.classList.add('f1-nav-done');
   });
 
+  // ── 18. Home — contador animado en los números ───────────
+  // Cubre AUTOS / ESCUDERÍAS / FOTOS (un solo número) y también
+  // AÑOS, que es un rango tipo "1950–2024" (dos números con un
+  // guion entre medio): se anima cada número por separado
+  // preservando el resto del texto tal cual.
+  const homeStatNums = document.querySelectorAll('.home-stat-n');
+  if (homeStatNums.length && 'IntersectionObserver' in window) {
+    const animateHomeStat = (el) => {
+      const raw = el.textContent;
+      const parts = raw.split(/(\d+)/); // alterna texto / número / texto...
+      const targets = parts.map(p => /^\d+$/.test(p) ? parseInt(p, 10) : null);
+      if (!targets.some(t => t !== null)) return;
+      // Para números grandes (como los años, ej. 2024) arrancar desde 0
+      // se ve como un flash imperceptible, no como un conteo. Para esos
+      // arrancamos más cerca del valor final; los chicos (AUTOS, etc.)
+      // sí cuentan desde 0, que es lo que se espera de esos totales.
+      const starts = targets.map(t => t === null ? null : (t > 200 ? Math.max(0, t - 40) : 0));
+      el.classList.add('counting');
+      const duration = 1800;
+      const start = performance.now();
+      function tick(now) {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+        el.textContent = parts
+          .map((part, i) => targets[i] === null
+            ? part
+            : Math.round(starts[i] + (targets[i] - starts[i]) * eased))
+          .join('');
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = raw;
+      }
+      requestAnimationFrame(tick);
+    };
+    const homeStatObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateHomeStat(entry.target);
+          homeStatObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    homeStatNums.forEach(el => homeStatObs.observe(el));
+  }
+
+  // ── 20. Home — mosaico: fotos que van rotando con el tiempo ─
+  // Cada tile tiene su PROPIO temporizador con un delay al azar
+  // (no un intervalo compartido), así van cambiando de a una,
+  // escalonadas en el tiempo — nunca todas juntas cada X segundos.
+  const mosaicPool  = Array.isArray(window.__F1_MOSAIC_POOL__) ? window.__F1_MOSAIC_POOL__.slice() : [];
+  const mosaicTiles = document.querySelectorAll('#homeMosaic .home-mosaic-item');
+  if (mosaicPool.length && mosaicTiles.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+
+    // Slugs mostrados ahora mismo, para no repetir la misma foto en 2 tiles
+    const shownSlugs = new Set();
+    mosaicTiles.forEach(t => {
+      const s = (t.getAttribute('href') || '').split('slug=')[1];
+      if (s) shownSlugs.add(decodeURIComponent(s));
+    });
+
+    const pickFromPool = (excludeSlug) => {
+      const candidates = mosaicPool.filter(p => !shownSlugs.has(p.slug) && p.slug !== excludeSlug);
+      const pool = candidates.length ? candidates : mosaicPool;
+      return pool[Math.floor(Math.random() * pool.length)];
+    };
+
+    const scheduleTile = (tile) => {
+      // 5–11s, distinto para cada tile
+      const delay = 5000 + Math.random() * 6000;
+      setTimeout(() => rotateTile(tile), delay);
+    };
+
+    function rotateTile(tile) {
+      if (document.hidden) { scheduleTile(tile); return; } // pestaña oculta: no gastar de más
+      const img = tile.querySelector('img');
+      const currentSlug = decodeURIComponent((tile.getAttribute('href') || '').split('slug=')[1] || '');
+      const next = pickFromPool(currentSlug);
+      if (!img || !next) { scheduleTile(tile); return; }
+
+      img.classList.add('mosaic-fading');
+      setTimeout(() => {
+        shownSlugs.delete(currentSlug);
+        tile.setAttribute('href', '?page=car&slug=' + next.slug);
+        img.src = next.thumb;
+        img.alt = next.model || '';
+
+        const yearEl = tile.querySelector('.home-mosaic-year');
+        const teamEl = tile.querySelector('.home-mosaic-team');
+        let driverEl = tile.querySelector('.home-mosaic-driver');
+        if (yearEl) yearEl.textContent = next.year;
+        if (teamEl) teamEl.textContent = next.team;
+        if (next.driver) {
+          if (!driverEl) {
+            driverEl = document.createElement('span');
+            driverEl.className = 'home-mosaic-driver';
+            if (teamEl) teamEl.after(driverEl);
+          }
+          driverEl.textContent = next.driver;
+          driverEl.style.display = '';
+        } else if (driverEl) {
+          driverEl.style.display = 'none';
+        }
+
+        shownSlugs.add(next.slug);
+        img.classList.remove('mosaic-fading');
+        scheduleTile(tile);
+      }, 420);
+    }
+
+    // Arranque escalonado: no todas empiezan a contar al mismo tiempo
+    mosaicTiles.forEach((tile, i) => {
+      setTimeout(() => scheduleTile(tile), i * 900 + Math.random() * 1500);
+    });
+  }
+
 });
