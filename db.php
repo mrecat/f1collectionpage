@@ -63,6 +63,10 @@ function initDB(PDO $pdo): void {
         )
     ");
 
+    // Fotos convertidas a WebP: si esta base todavía apunta a .png/.jpg que ya
+    // no están en disco pero existe el .webp equivalente, corrige la ruta.
+    migrateImagePathsToWebp($pdo);
+
     // Migrar image_path legacy → car_images (se ejecuta una sola vez)
     $legacy = $pdo->query("SELECT id, image_path FROM cars WHERE image_path IS NOT NULL AND image_path != ''")->fetchAll();
     foreach ($legacy as $row) {
@@ -86,6 +90,69 @@ function initDB(PDO $pdo): void {
     if ($count == 0) {
         seedData($pdo);
     }
+}
+
+// Corrige rutas viejas (.png/.jpg/.gif) hacia su .webp cuando el original ya no
+// existe y el .webp sí. No borra nada y no toca rutas cuyo archivo sigue estando.
+// Costo normal: dos consultas que devuelven cero filas.
+function migrateImagePathsToWebp(PDO $pdo): void {
+    $targets = [['car_images', 'path'], ['cars', 'image_path']];
+    foreach ($targets as [$table, $col]) {
+        $rows = $pdo->query("SELECT id, $col AS p FROM $table
+                             WHERE $col IS NOT NULL AND $col != '' AND lower($col) NOT LIKE '%.webp'")->fetchAll();
+        foreach ($rows as $row) {
+            $webp = preg_replace('/\.[A-Za-z0-9]+$/', '.webp', $row['p']);
+            if ($webp === $row['p']) continue;
+            if (!file_exists(__DIR__ . '/' . $row['p']) && file_exists(__DIR__ . '/' . $webp)) {
+                $pdo->prepare("UPDATE $table SET $col = ? WHERE id = ?")->execute([$webp, $row['id']]);
+            }
+        }
+    }
+}
+
+// Convierte una imagen recién subida a WebP (máx. 1600 px de lado, calidad 82).
+// Devuelve el nombre de archivo final. Si GD/WebP no está disponible o algo
+// falla, deja el archivo original intacto y devuelve su mismo nombre.
+function convertUploadToWebp(string $dir, string $name): string {
+    $src = $dir . $name;
+    $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+    if ($ext === 'webp' || !function_exists('imagewebp') || !function_exists('imagecreatefromstring')) {
+        return $name;
+    }
+    $data = @file_get_contents($src);
+    $img  = $data !== false ? @imagecreatefromstring($data) : false;
+    if (!$img) return $name;
+
+    // Respetar la orientación EXIF de las fotos de celular (GD la ignora)
+    if (in_array($ext, ['jpg', 'jpeg']) && function_exists('exif_read_data')) {
+        $exif  = @exif_read_data($src);
+        $angle = [3 => 180, 6 => -90, 8 => 90][$exif['Orientation'] ?? 0] ?? 0;
+        if ($angle) {
+            $rot = imagerotate($img, $angle, 0);
+            if ($rot) { imagedestroy($img); $img = $rot; }
+        }
+    }
+
+    if (!imageistruecolor($img)) imagepalettetotruecolor($img);
+
+    $w = imagesx($img); $h = imagesy($img); $max = 1600;
+    if (max($w, $h) > $max) {
+        $ratio  = $max / max($w, $h);
+        $scaled = imagescale($img, (int)round($w * $ratio), (int)round($h * $ratio), IMG_BICUBIC);
+        if ($scaled) { imagedestroy($img); $img = $scaled; }
+    }
+    imagealphablending($img, false);
+    imagesavealpha($img, true);
+
+    $newName = pathinfo($name, PATHINFO_FILENAME) . '.webp';
+    $ok = @imagewebp($img, $dir . $newName, 82);
+    imagedestroy($img);
+    if (!$ok || !file_exists($dir . $newName) || filesize($dir . $newName) === 0) {
+        @unlink($dir . $newName);
+        return $name;
+    }
+    unlink($src);
+    return $newName;
 }
 
 function cleanOrphanImages(PDO $pdo): void {
@@ -520,6 +587,7 @@ function handleMultiImageUpload(int $carId): void {
         $ext  = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
         $name = 'car_' . $carId . '_' . time() . '_' . $i . '.' . $ext;
         if (move_uploaded_file($tmp, $dir . $name)) {
+            $name = convertUploadToWebp($dir, $name);
             getDB()->prepare("INSERT INTO car_images (car_id, path, sort_order) VALUES (?,?,?)")
                 ->execute([$carId, 'data/images/' . $name, $cnt]);
         }

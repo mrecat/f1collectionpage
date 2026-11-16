@@ -50,7 +50,7 @@ $msg   = $_GET['msg'] ?? '';
   <a href="?page=car&slug=<?= $carSlug ?>" class="coll-card">
     <div class="coll-card-img">
       <?php if ($imgPath): ?>
-        <img src="<?= $imgPath ?>" alt="<?= htmlspecialchars($car['model']) ?>">
+        <img src="<?= $imgPath ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($car['model']) ?>">
       <?php else: ?>
         <span class="coll-card-noimg">🏆</span>
       <?php endif; ?>

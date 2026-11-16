@@ -92,7 +92,7 @@ $admin       = isAdmin();
     <!-- Foto del modelo a escala -->
     <div class="mini-card-img">
       <?php if ($item['scale_img']): ?>
-        <img src="<?= htmlspecialchars($item['scale_img']) ?>" alt="<?= htmlspecialchars($item['model']) ?>">
+        <img src="<?= htmlspecialchars($item['scale_img']) ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($item['model']) ?>">
       <?php else: ?>
         <span class="mini-card-noimg">🔬</span>
       <?php endif; ?>

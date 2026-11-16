@@ -130,7 +130,7 @@ $msg     = $_GET['msg'] ?? '';
         <td>
           <?php if ($imgPath): ?>
             <a href="?page=car&slug=<?= htmlspecialchars(makeCarSlug($car)) ?>">
-              <img src="<?= $imgPath ?>" class="car-thumb" alt="<?= htmlspecialchars($car['model']) ?>" title="Ver detalle">
+              <img src="<?= $imgPath ?>" loading="lazy" decoding="async" class="car-thumb" alt="<?= htmlspecialchars($car['model']) ?>" title="Ver detalle">
             </a>
           <?php elseif ($admin): ?>
             <a href="?page=edit&id=<?= $car['id'] ?>" class="no-img" title="Agregar foto">📷</a>
@@ -197,7 +197,7 @@ $msg     = $_GET['msg'] ?? '';
   <a href="?page=car&slug=<?= $carSlug2 ?>" class="coll-card">
     <div class="coll-card-img">
       <?php if ($imgPath2): ?>
-        <img src="<?= $imgPath2 ?>" alt="<?= htmlspecialchars($car['model']) ?>">
+        <img src="<?= $imgPath2 ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($car['model']) ?>">
       <?php else: ?>
         <span class="coll-card-noimg">🏎️</span>
       <?php endif; ?>

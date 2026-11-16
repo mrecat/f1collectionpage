@@ -92,7 +92,7 @@ foreach ($mosaicPool as $i => $m) {
   <div class="home-mosaic" id="homeMosaic">
     <?php foreach ($mosaicVisible as $i => $m): ?>
     <a href="?page=car&slug=<?= $mosaicVisibleSlugs[$i] ?>" class="home-mosaic-item">
-      <img src="<?= htmlspecialchars($m['thumb']) ?>" alt="<?= htmlspecialchars($m['model']) ?>">
+      <img src="<?= htmlspecialchars($m['thumb']) ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($m['model']) ?>">
       <div class="home-mosaic-overlay">
         <span class="home-mosaic-year"><?= $m['year'] ?></span>
         <span class="home-mosaic-team"><?= htmlspecialchars($m['team']) ?></span>

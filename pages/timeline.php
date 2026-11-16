@@ -84,7 +84,7 @@ foreach ($eras as $idx => $era) {
       <a href="?page=car&slug=<?= $slug ?>" class="era-car-card">
         <?php if (!empty($car['thumb'])): ?>
           <div class="era-car-img">
-            <img src="<?= htmlspecialchars($car['thumb']) ?>" alt="<?= htmlspecialchars($car['model']) ?>">
+            <img src="<?= htmlspecialchars($car['thumb']) ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($car['model']) ?>">
           </div>
         <?php else: ?>
           <div class="era-car-img era-car-noimg">🏎️</div>

@@ -34,8 +34,8 @@ foreach ($files as $file) {
     $full = $dir . $file;
     if (!is_file($full)) continue;
 
-    // Espera nombres tipo: car_123_1774664087.png
-    if (!preg_match('/^car_(\d+)_(\d+)\.\w+$/i', $file, $m)) {
+    // Espera nombres tipo: car_123_1774664087.webp o car_123_1774664087_0.webp
+    if (!preg_match('/^car_(\d+)_(\d+)(?:_\d+)?\.\w+$/i', $file, $m)) {
         $skippedNoMatch++;
         $results[] = "⚠️ Nombre no reconocido, se ignora: $file";
         continue;
