@@ -539,3 +539,353 @@
   stroke-dashoffset: 107;
   transition: stroke-dashoffset .1s linear;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   RONDA 3 — COLOR POR ESCUDERÍA Y CHAPA DE CARRERA
+   El color de cada equipo llega desde PHP (teams.php) como la
+   variable --team en la tarjeta o la fila. Si falta, cae en el
+   rojo del sitio y nada se rompe.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────
+   18. TARJETAS — acento del color del equipo
+   ─────────────────────────────────────────── */
+.coll-card, .mini-card { --team: var(--red); }
+
+/* Degradado sobre la foto + franja del color del equipo abajo.
+   El degradado es el que hace legible el año en contorno. */
+.coll-card-img::after,
+.mini-card-img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, var(--team) 0 3px, transparent 3px),
+    linear-gradient(to top, rgba(0,0,0,.80) 0%, rgba(0,0,0,.32) 34%, transparent 62%);
+}
+
+/* El borde y el resplandor toman el color del equipo */
+.coll-card:hover,
+.mini-card:hover { border-color: var(--team); }
+
+.coll-card.tc-active,
+.mini-card.tc-active {
+  box-shadow:
+    0 20px 45px rgba(0,0,0,.55),
+    0 0 0 1px var(--team),
+    0 0 40px -10px var(--team);
+}
+
+/* Cuadradito inclinado del color, antes del nombre de la escudería */
+.coll-card-team::before,
+.mini-card-team::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 9px;
+  background: var(--team);
+  transform: skewX(-14deg);
+}
+
+/* ───────────────────────────────────────────
+   19. TARJETAS — el año en contorno y la esquina cortada
+   ─────────────────────────────────────────── */
+.coll-card-year,
+.mini-card-year {
+  position: absolute;
+  top: auto;
+  left: auto;
+  right: 12px;
+  bottom: 2px;
+  z-index: 2;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  font-family: 'Formula1Wide', 'Formula1', sans-serif;
+  font-size: 29px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  color: transparent;
+  -webkit-text-stroke: 1.3px rgba(255,255,255,.66);
+  pointer-events: none;
+}
+.coll-card:hover .coll-card-year,
+.mini-card:hover .mini-card-year {
+  box-shadow: none;
+  transform: translateY(-2px);
+  -webkit-text-stroke-color: var(--team);
+}
+
+/* Esquina inferior derecha cortada en diagonal */
+.coll-card,
+.mini-card { border-bottom-right-radius: 0; }
+
+.coll-card::after,
+.mini-card::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  background: var(--bg);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* El botón de editar tiene que quedar por encima del degradado */
+.coll-card-edit { z-index: 3; }
+
+/* ───────────────────────────────────────────
+   19b. FICHA DEL AUTO — acento de la escudería
+   ─────────────────────────────────────────── */
+.car-detail { --team: var(--red); }
+
+.car-detail-team::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 12px;
+  background: var(--team);
+  transform: skewX(-14deg);
+}
+.car-detail-year-block {
+  position: relative;
+  padding-bottom: 10px;
+}
+.car-detail-year-block::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 64px;
+  height: 4px;
+  background: var(--team);
+  box-shadow: 0 0 16px -2px var(--team);
+}
+
+/* ───────────────────────────────────────────
+   20. TABLA — barra del color del equipo en cada fila
+   La vista de tabla es la que se ve por defecto, así que el
+   color de escudería también aparece acá.
+   ─────────────────────────────────────────── */
+.table-wrap tbody tr {
+  box-shadow: inset 4px 0 0 var(--team, transparent);
+  transition: box-shadow .2s;
+}
+.table-wrap tbody tr:hover {
+  box-shadow: inset 4px 0 0 var(--team, transparent), inset 0 0 60px -30px var(--team, transparent);
+}
+
+/* ───────────────────────────────────────────
+   21. HOME — el hero respira
+   Zoom lento sobre la foto de fondo y un poco menos de blur,
+   para que se reconozca el auto.
+   ─────────────────────────────────────────── */
+.home-hero-bg {
+  filter: blur(1.5px) brightness(.4);
+  animation: f1-hero-zoom 28s ease-in-out infinite alternate;
+}
+@keyframes f1-hero-zoom {
+  from { transform: scale(1.06); }
+  to   { transform: scale(1.18) translateX(-1.4%); }
+}
+
+/* El texto chico de arriba del título tiene que leerse ahora que
+   la foto de fondo se ve más. */
+.home-hero-eyebrow {
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,.9);
+}
+.home-hero-sub { text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+
+/* ───────────────────────────────────────────
+   22. HOME — semáforo de largada
+   Las cinco luces se encienden una por una y se apagan todas
+   juntas, como en la largada real. Por eso cada luz tiene su
+   propio keyframe en lugar de un delay.
+   ─────────────────────────────────────────── */
+.f1-lights {
+  position: absolute;
+  top: 22px;
+  right: 26px;
+  z-index: 2;
+  display: flex;
+  gap: 9px;
+  padding: 11px 13px;
+  background: rgba(0,0,0,.62);
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+}
+.f1-light {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #1b1b1f;
+  box-shadow: inset 0 0 0 2px #2c2c32;
+  display: block;
+}
+.f1-light:nth-child(1) { animation: f1-light-1 6s infinite; }
+.f1-light:nth-child(2) { animation: f1-light-2 6s infinite; }
+.f1-light:nth-child(3) { animation: f1-light-3 6s infinite; }
+.f1-light:nth-child(4) { animation: f1-light-4 6s infinite; }
+.f1-light:nth-child(5) { animation: f1-light-5 6s infinite; }
+
+@keyframes f1-light-1 {
+  0%, 9%     { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+  10%, 74%   { background: #ff1e12; box-shadow: 0 0 20px 4px rgba(255,30,18,.72); }
+  75%, 100%  { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+}
+@keyframes f1-light-2 {
+  0%, 21%    { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+  22%, 74%   { background: #ff1e12; box-shadow: 0 0 20px 4px rgba(255,30,18,.72); }
+  75%, 100%  { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+}
+@keyframes f1-light-3 {
+  0%, 33%    { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+  34%, 74%   { background: #ff1e12; box-shadow: 0 0 20px 4px rgba(255,30,18,.72); }
+  75%, 100%  { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+}
+@keyframes f1-light-4 {
+  0%, 45%    { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+  46%, 74%   { background: #ff1e12; box-shadow: 0 0 20px 4px rgba(255,30,18,.72); }
+  75%, 100%  { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+}
+@keyframes f1-light-5 {
+  0%, 57%    { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+  58%, 74%   { background: #ff1e12; box-shadow: 0 0 20px 4px rgba(255,30,18,.72); }
+  75%, 100%  { background: #1b1b1f; box-shadow: inset 0 0 0 2px #2c2c32; }
+}
+
+/* ───────────────────────────────────────────
+   23. HOME — cinta con las escuderías
+   ─────────────────────────────────────────── */
+.f1-ticker {
+  position: relative;
+  z-index: 3;
+  margin: -34px 0 44px;
+  background: var(--red);
+  transform: rotate(-1.4deg);
+  overflow: hidden;
+  box-shadow: 0 14px 40px rgba(225,6,0,.28);
+}
+.f1-ticker-track {
+  display: flex;
+  width: max-content;
+  padding: 13px 0;
+  animation: f1-ticker 46s linear infinite;
+}
+.f1-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  padding-right: 24px;
+  font-family: 'Formula1Wide', 'Formula1', sans-serif;
+  font-size: 17px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+}
+.f1-ticker-item::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  transform: rotate(45deg);
+  flex: 0 0 auto;
+}
+@keyframes f1-ticker {
+  to { transform: translateX(-50%); }
+}
+
+/* ───────────────────────────────────────────
+   24. MARCA — franjas en el logo, pestaña activa inclinada
+        y bandera a cuadros arriba del pie
+   ─────────────────────────────────────────── */
+.logo::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 27px;
+  height: 38px;
+  transform: skewX(-14deg);
+  background: linear-gradient(90deg,
+    var(--red)   0    11px,
+    transparent  11px 15px,
+    var(--red)   15px 21px,
+    transparent  21px 24px,
+    var(--red)   24px 27px);
+}
+
+nav a.active {
+  position: relative;
+  color: #fff;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+nav a.active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--red);
+  border-radius: 4px;
+  transform: skewX(-12deg);
+  box-shadow: 0 6px 18px -6px var(--red);
+}
+
+.f1-checker-strip {
+  height: 14px;
+  background-image: repeating-conic-gradient(#f0f0f0 0 25%, #0d0d0d 0 50%);
+  background-size: 16px 16px;
+  animation: f1-checker 7s linear infinite;
+}
+@keyframes f1-checker {
+  to { background-position: 160px 0; }
+}
+
+/* ───────────────────────────────────────────
+   25. Respeta "reducir movimiento" del sistema
+   ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-bg,
+  .f1-light,
+  .f1-ticker-track,
+  .f1-checker-strip { animation: none !important; }
+  .home-hero-bg { transform: scale(1.06); }
+}
+
+/* ───────────────────────────────────────────
+   26. Celular y tablet
+   ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .f1-lights { top: 14px; right: 14px; gap: 6px; padding: 8px 10px; }
+  .f1-light  { width: 14px; height: 14px; }
+}
+@media (max-width: 768px) {
+  .coll-card-year, .mini-card-year { font-size: 23px; right: 9px; }
+  .coll-card::after, .mini-card::after { width: 18px; height: 18px; }
+  .f1-ticker { margin: -26px 0 32px; }
+  .f1-ticker-item { font-size: 14px; gap: 16px; padding-right: 16px; }
+  .logo::before { height: 30px; width: 21px; }
+
+  /* En celular la barra de números tapaba el botón del hero, porque
+     estaba posicionada encima. Acá pasa a ir debajo, en el flujo. */
+  .home-hero { min-height: 0; }
+  .home-hero-content { padding-bottom: 30px; }
+  .home-stats-bar { position: static; }
+
+  /* "MUSEO VIRTUAL DE FÓRMULA 1" entraba cortado en una línea y media */
+  .home-hero-eyebrow { letter-spacing: 2px; font-size: 10px; }
+}
+@media (max-width: 560px) {
+  .f1-lights { display: none; }
+}

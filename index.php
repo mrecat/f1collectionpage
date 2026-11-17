@@ -1,6 +1,7 @@
 <?php
 require_once 'db.php';
 require_once 'auth.php';
+require_once 'teams.php';
 
 $page = $_GET['page'] ?? 'home';
 
@@ -172,6 +173,7 @@ switch($page) {
   <span>▲</span>
 </button>
 
+<div class="f1-checker-strip" aria-hidden="true"></div>
 <footer>
   <span><?= SITE_NAME ?> &copy; <?= date('Y') ?> &mdash; <?= $totalCarsSite ?> autos en la parrilla</span>
   <?php if (!isAdmin()): ?>

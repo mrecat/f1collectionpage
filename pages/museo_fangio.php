@@ -47,7 +47,7 @@ $msg   = $_GET['msg'] ?? '';
     $imgPath = getFirstImage((int)$car['id']) ? htmlspecialchars(getFirstImage((int)$car['id'])) : '';
     $carSlug = htmlspecialchars(makeCarSlug($car));
   ?>
-  <a href="?page=car&slug=<?= $carSlug ?>" class="coll-card">
+  <a href="?page=car&slug=<?= $carSlug ?>" class="coll-card" style="--team:<?= teamColor($car['team']) ?>">
     <div class="coll-card-img">
       <?php if ($imgPath): ?>
         <img src="<?= $imgPath ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($car['model']) ?>">
