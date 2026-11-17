@@ -113,7 +113,7 @@ foreach ($mosaicPool as $i => $m) {
     <div class="home-section-title">ALGUNOS AUTOS DE LA COLECCIÓN</div>
     <a href="?page=collection" class="home-section-link">Ver todos →</a>
   </div>
-  <div class="home-mosaic" id="homeMosaic">
+  <div class="home-mosaic <?= count($mosaicVisible) === 12 ? 'mosaic-12' : '' ?>" id="homeMosaic">
     <?php foreach ($mosaicVisible as $i => $m): ?>
     <a href="?page=car&slug=<?= $mosaicVisibleSlugs[$i] ?>" class="home-mosaic-item">
       <img src="<?= htmlspecialchars($m['thumb']) ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($m['model']) ?>">
