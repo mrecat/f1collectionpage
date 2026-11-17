@@ -31,6 +31,16 @@ function initDB(PDO $pdo): void {
             created_at TEXT DEFAULT (datetime('now'))
         )
     ");
+    // Intentos de login fallidos, para el bloqueo por fuerza bruta
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS login_attempts (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            ip           TEXT    NOT NULL,
+            attempted_at INTEGER NOT NULL
+        )
+    ");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_login_attempts ON login_attempts (ip, attempted_at)");
+
     // Add image_path if upgrading from v1
     try { $pdo->exec("ALTER TABLE cars ADD COLUMN image_path TEXT DEFAULT NULL"); } catch(Exception $e) {}
     // Add performance field if upgrading
@@ -528,20 +538,56 @@ function saveCar(array $data, ?int $id = null): void {
     }
 }
 
+// Revisa que el archivo subido sea realmente una imagen y devuelve la
+// extensión que le corresponde según su contenido, no según su nombre ni
+// según el tipo que declara el navegador (los dos los elige quien sube).
+// Devuelve null si no es una imagen de un formato aceptado.
+function validatedImageExtension(string $tmp, int $size): ?string {
+    if ($tmp === '' || $size <= 0 || $size > 8 * 1024 * 1024) return null;
+    if (!is_uploaded_file($tmp))                              return null;
+
+    $info = @getimagesize($tmp);
+    if ($info === false || empty($info[2]))                   return null;
+
+    $byType = [
+        IMAGETYPE_JPEG => 'jpg',
+        IMAGETYPE_PNG  => 'png',
+        IMAGETYPE_WEBP => 'webp',
+        IMAGETYPE_GIF  => 'gif',
+    ];
+    return $byType[$info[2]] ?? null;
+}
+
+// Arma un nombre de archivo libre. El formato car_<id>_<timestamp>[_<n>] es
+// el que espera repair.php para reconstruir los vínculos, así que se mantiene.
+// El número avanza si el nombre ya está ocupado, que es lo que pasaba cuando
+// dos subidas del mismo auto caían en el mismo segundo: la segunda foto
+// sobrescribía a la primera.
+function uniqueImageName(string $dir, int $carId, int $seq, string $ext): string {
+    $ts = time();
+    for ($n = $seq; $n < $seq + 500; $n++) {
+        $stem = 'car_' . $carId . '_' . $ts . '_' . $n;
+        if (!file_exists($dir . $stem . '.' . $ext) && !file_exists($dir . $stem . '.webp')) {
+            return $stem . '.' . $ext;
+        }
+    }
+    return 'car_' . $carId . '_' . $ts . '_' . random_int(100000, 999999) . '.' . $ext;
+}
+
 function handleImageUpload(int $carId): ?string {
     if (empty($_FILES['car_image']['tmp_name'])) return null;
     $file = $_FILES['car_image'];
-    $allowed = ['image/jpeg','image/jpg','image/png','image/webp','image/gif'];
-    if (!in_array($file['type'], $allowed)) return null;
-    if ($file['size'] > 5 * 1024 * 1024) return null;
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) return null;
+
+    $ext = validatedImageExtension($file['tmp_name'], (int)$file['size']);
+    if ($ext === null) return null;
 
     $dir = __DIR__ . '/data/images/';
     if (!is_dir($dir)) mkdir($dir, 0755, true);
 
-    $ext  = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $name = 'car_' . $carId . '_' . time() . '.' . strtolower($ext);
-    $dest = $dir . $name;
-    if (move_uploaded_file($file['tmp_name'], $dest)) {
+    $name = uniqueImageName($dir, $carId, 0, $ext);
+    if (move_uploaded_file($file['tmp_name'], $dir . $name)) {
+        $name = convertUploadToWebp($dir, $name);
         return 'data/images/' . $name;
     }
     return null;
@@ -573,19 +619,17 @@ function getFirstImage(int $carId): ?string {
 
 function handleMultiImageUpload(int $carId): void {
     if (empty($_FILES['car_images']['tmp_name'][0])) return;
-    $files   = $_FILES['car_images'];
-    $allowed = ['image/jpeg','image/jpg','image/png','image/webp','image/gif'];
-    $dir     = __DIR__ . '/data/images/';
+    $files = $_FILES['car_images'];
+    $dir   = __DIR__ . '/data/images/';
     if (!is_dir($dir)) mkdir($dir, 0755, true);
 
     foreach ($files['tmp_name'] as $i => $tmp) {
         if (!$tmp || $files['error'][$i] !== UPLOAD_ERR_OK) continue;
-        if (!in_array($files['type'][$i], $allowed))        continue;
-        if ($files['size'][$i] > 5 * 1024 * 1024)          continue;
+        $ext = validatedImageExtension($tmp, (int)$files['size'][$i]);
+        if ($ext === null)                                  continue;
         $cnt = (int)getDB()->query("SELECT COUNT(*) FROM car_images WHERE car_id=$carId")->fetchColumn();
         if ($cnt >= 5) break;
-        $ext  = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
-        $name = 'car_' . $carId . '_' . time() . '_' . $i . '.' . $ext;
+        $name = uniqueImageName($dir, $carId, (int)$i, $ext);
         if (move_uploaded_file($tmp, $dir . $name)) {
             $name = convertUploadToWebp($dir, $name);
             getDB()->prepare("INSERT INTO car_images (car_id, path, sort_order) VALUES (?,?,?)")

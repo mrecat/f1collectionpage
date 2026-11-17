@@ -336,6 +336,7 @@ function savePerformance() {
 
   var fd = new FormData();
   fd.append('action',      'save_performance');
+  fd.append('f1_csrf',     '<?= csrfToken() ?>');
   fd.append('car_id',      '<?= $car['id'] ?>');
   fd.append('performance', perf);
   fd.append('is_champion', champ);

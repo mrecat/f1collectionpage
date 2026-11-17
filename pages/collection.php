@@ -173,6 +173,7 @@ $msg     = $_GET['msg'] ?? '';
             <form method="post" action="action.php" style="display:inline"
                   onsubmit="return confirm('¿Eliminar este auto?')">
               <input type="hidden" name="action"  value="delete_car">
+              <?= csrfField() ?>
               <input type="hidden" name="car_id"  value="<?= $car['id'] ?>">
               <button type="submit" class="btn btn-danger btn-sm">🗑️</button>
             </form>
