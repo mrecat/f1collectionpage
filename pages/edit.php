@@ -110,6 +110,7 @@ $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
 <!-- ══ FORMULARIO PRINCIPAL ══════════════════════ -->
 <div class="form-card">
   <form method="post" action="index.php?page=edit&id=<?= $id ?>" enctype="multipart/form-data">
+    <?= csrfField() ?>
     <div class="form-grid">
 
       <div class="form-group">
