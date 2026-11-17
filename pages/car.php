@@ -54,7 +54,7 @@ $backCrumb   = $isFangioCar ? 'Museo Fangio' : 'Colección';
 </div>
 
 <!-- Contenido principal -->
-<div class="car-detail">
+<div class="car-detail" style="--team:<?= teamColor($car['team']) ?>">
 
   <!-- ── Galería ── -->
   <div class="car-detail-gallery">

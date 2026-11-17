@@ -38,6 +38,13 @@ foreach ($mosaicPool as $i => $m) {
     <div class="home-hero-bg" style="background-image:url('<?= htmlspecialchars($hero['thumb']) ?>')"></div>
   <?php endif; ?>
   <div class="home-hero-overlay"></div>
+  <div class="f1-lights" role="img" aria-label="Semáforo de largada">
+    <span class="f1-light"></span>
+    <span class="f1-light"></span>
+    <span class="f1-light"></span>
+    <span class="f1-light"></span>
+    <span class="f1-light"></span>
+  </div>
   <div class="home-hero-content">
     <div class="home-hero-eyebrow">🏁 MUSEO VIRTUAL DE FÓRMULA 1</div>
     <!--<h1 class="home-hero-title">UNA COLECCIÓN<br><span>DE OTRO MUNDO</span></h1> -->
@@ -58,6 +65,23 @@ foreach ($mosaicPool as $i => $m) {
     <div class="home-stat"><span class="home-stat-n"><?= $stats['photos'] ?></span><span class="home-stat-l">FOTOS</span></div>
   </div>
 </div>
+
+<!-- CINTA DE ESCUDERÍAS -->
+<?php
+  $tickerTeams = getDistinct('team');
+  if (count($tickerTeams) > 1):
+    // se repite dos veces para que el bucle no tenga corte visible
+?>
+<div class="f1-ticker" aria-hidden="true">
+  <div class="f1-ticker-track">
+    <?php for ($rep = 0; $rep < 2; $rep++): ?>
+      <?php foreach ($tickerTeams as $t): ?>
+        <span class="f1-ticker-item"><?= htmlspecialchars($t) ?></span>
+      <?php endforeach; ?>
+    <?php endfor; ?>
+  </div>
+</div>
+<?php endif; ?>
 
 <!-- SOBRE LA COLECCIÓN -->
 <div class="home-about-section">

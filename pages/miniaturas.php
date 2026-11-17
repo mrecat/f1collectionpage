@@ -87,7 +87,7 @@ $admin       = isAdmin();
     'maker'     => $item['maker'],
     'collection'=> $item['collection'],
     'id'        => $item['id'],
-  ]), ENT_QUOTES) ?>)">
+  ]), ENT_QUOTES) ?>)" style="--team:<?= teamColor($item['team']) ?>">
 
     <!-- Foto del modelo a escala -->
     <div class="mini-card-img">

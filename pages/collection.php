@@ -124,7 +124,7 @@ $msg     = $_GET['msg'] ?? '';
       <?php
         $imgPath = getFirstImage((int)$car['id']) ? htmlspecialchars(getFirstImage((int)$car['id'])) : '';
       ?>
-      <tr>
+      <tr style="--team:<?= teamColor($car['team']) ?>">
 
         <!-- Miniatura -->
         <td>
@@ -195,7 +195,7 @@ $msg     = $_GET['msg'] ?? '';
     $imgPath2 = getFirstImage((int)$car['id']) ? htmlspecialchars(getFirstImage((int)$car['id'])) : '';
     $carSlug2 = htmlspecialchars(makeCarSlug($car));
   ?>
-  <a href="?page=car&slug=<?= $carSlug2 ?>" class="coll-card">
+  <a href="?page=car&slug=<?= $carSlug2 ?>" class="coll-card" style="--team:<?= teamColor($car['team']) ?>">
     <div class="coll-card-img">
       <?php if ($imgPath2): ?>
         <img src="<?= $imgPath2 ?>" loading="lazy" decoding="async" alt="<?= htmlspecialchars($car['model']) ?>">
