@@ -689,8 +689,25 @@
    para que se reconozca el auto.
    ─────────────────────────────────────────── */
 .home-hero-bg {
-  filter: blur(1.5px) brightness(.4);
+  /* Sin desenfoque y bastante más clara: la foto es la protagonista.
+     Lo que mantiene legible el texto es el degradado de abajo, que
+     oscurece el lado izquierdo y deja limpio el derecho. */
+  filter: brightness(.72) saturate(1.06) contrast(1.06);
   animation: f1-hero-zoom 28s ease-in-out infinite alternate;
+}
+
+/* El degradado original iba en diagonal y dejaba lo más oscuro abajo a
+   la derecha, justo donde suele estar el auto. Ahora va de izquierda a
+   derecha: oscuro detrás del texto, casi transparente sobre la foto. */
+.home-hero-overlay {
+  background:
+    linear-gradient(97deg,
+      rgba(8,8,10,.94) 0%,
+      rgba(8,8,10,.88) 26%,
+      rgba(8,8,10,.55) 48%,
+      rgba(8,8,10,.18) 70%,
+      rgba(8,8,10,.06) 100%),
+    linear-gradient(0deg, rgba(225,6,0,.12) 0%, transparent 38%);
 }
 @keyframes f1-hero-zoom {
   from { transform: scale(1.06); }
@@ -885,7 +902,80 @@ nav a.active::before {
 
   /* "MUSEO VIRTUAL DE FÓRMULA 1" entraba cortado en una línea y media */
   .home-hero-eyebrow { letter-spacing: 2px; font-size: 10px; }
+
+  /* Acá el texto ocupa todo el ancho, así que el degradado tiene que
+     oscurecer de arriba hacia abajo en vez de izquierda a derecha. */
+  .home-hero-overlay {
+    background:
+      linear-gradient(180deg,
+        rgba(8,8,10,.90) 0%,
+        rgba(8,8,10,.86) 55%,
+        rgba(8,8,10,.62) 80%,
+        rgba(8,8,10,.42) 100%),
+      linear-gradient(0deg, rgba(225,6,0,.12) 0%, transparent 38%);
+  }
+  .home-hero-bg { filter: brightness(.66) saturate(1.06) contrast(1.06); }
 }
 @media (max-width: 560px) {
   .f1-lights { display: none; }
+}
+
+/* ───────────────────────────────────────────
+   27. MOSAICO DE LA HOME — sin huecos
+   Antes las piezas se acomodaban solas y sus tamaños sumaban 22
+   celdas, pero la grilla de 6 columnas necesita múltiplos de 6: las
+   2 celdas que faltaban quedaban como un rectángulo negro abajo a la
+   derecha. Ahora cada pieza tiene su lugar asignado y la distribución
+   cierra exacta en los tres anchos.
+   Solo se aplica con las 12 fotos justas (clase mosaic-12 desde PHP);
+   si hubiera menos, vuelve al acomodado automático de siempre.
+   ─────────────────────────────────────────── */
+.home-mosaic.mosaic-12 {
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(4, 130px);
+  grid-template-areas:
+    "a a b c d e"
+    "a a b c f g"
+    "h h i i f g"
+    "j j i i k l";
+}
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(1)  { grid-area: a; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(2)  { grid-area: b; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(3)  { grid-area: c; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(4)  { grid-area: d; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(5)  { grid-area: e; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(6)  { grid-area: f; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(7)  { grid-area: g; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(8)  { grid-area: h; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(9)  { grid-area: i; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(10) { grid-area: j; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(11) { grid-area: k; }
+.home-mosaic.mosaic-12 > .home-mosaic-item:nth-child(12) { grid-area: l; }
+
+@media (max-width: 980px) {
+  .home-mosaic.mosaic-12 {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(5, 120px);
+    grid-template-areas:
+      "a a b"
+      "a a c"
+      "d e f"
+      "g h i"
+      "j k l";
+  }
+}
+@media (max-width: 700px) {
+  .home-mosaic.mosaic-12 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(8, 110px);
+    grid-template-areas:
+      "a a"
+      "a a"
+      "b c"
+      "d e"
+      "f g"
+      "h i"
+      "j k"
+      "l l";
+  }
 }
