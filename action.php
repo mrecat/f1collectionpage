@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 requireAdmin();
+requireCsrf();
 
 // Ruta base de la app — funciona sin importar dónde esté instalada
 $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');

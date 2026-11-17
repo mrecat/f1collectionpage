@@ -16,6 +16,7 @@ $isFangio = ($car['category'] ?? 'f1') === 'fangio';
 $backPage = $isFangio ? 'museo_fangio' : 'collection';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCsrf();
     $data = [
         'year'        => (int)($_POST['year']       ?? 0),
         'team'        => trim($_POST['team']        ?? ''),
@@ -84,6 +85,7 @@ $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
       <?php if (!$isCover): ?>
       <form method="post" action="action.php" style="margin-bottom:6px;">
         <input type="hidden" name="action"   value="set_cover">
+        <?= csrfField() ?>
         <input type="hidden" name="car_id"   value="<?= $id ?>">
         <input type="hidden" name="image_id" value="<?= $img['id'] ?>">
         <button type="submit" class="btn btn-gold btn-sm" style="width:100%">⭐ PORTADA</button>
@@ -94,6 +96,7 @@ $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
       <form method="post" action="action.php"
             onsubmit="return confirm('¿Eliminar esta foto?')">
         <input type="hidden" name="action"   value="delete_image">
+        <?= csrfField() ?>
         <input type="hidden" name="car_id"   value="<?= $id ?>">
         <input type="hidden" name="image_id" value="<?= $img['id'] ?>">
         <button type="submit" class="btn btn-danger btn-sm" style="width:100%">🗑️ ELIMINAR</button>
@@ -208,6 +211,7 @@ $fv = fn(string $key) => htmlspecialchars($car[$key] ?? '');
   <form method="post" action="action.php"
         onsubmit="return confirm('¿Eliminar definitivamente este auto (<?= $fv('team') ?> <?= $fv('model') ?>)? Esta acción no se puede deshacer y también borrará sus fotos.')">
     <input type="hidden" name="action" value="delete_car">
+    <?= csrfField() ?>
     <input type="hidden" name="car_id" value="<?= $id ?>">
     <button type="submit" class="btn btn-danger">🗑️ ELIMINAR AUTO</button>
   </form>

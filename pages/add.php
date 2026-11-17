@@ -26,6 +26,7 @@ $collections = getDistinct('collection', $category);
   <!-- action.php maneja el POST y el upload, sin depender del routing de index.php -->
   <form method="post" action="action.php" enctype="multipart/form-data">
     <input type="hidden" name="action" value="save_new_car">
+    <?= csrfField() ?>
     <input type="hidden" name="category" value="<?= htmlspecialchars($category) ?>">
     <div class="form-grid">
 

@@ -1,7 +1,9 @@
 <?php
 $error  = !empty($_SESSION['f1_login_error']);
+$locked = (int)($_SESSION['f1_login_locked'] ?? 0);
 $denied = !empty($_GET['denied']);
 if ($error) unset($_SESSION['f1_login_error']);
+unset($_SESSION['f1_login_locked']);
 ?>
 
 <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
@@ -15,7 +17,11 @@ if ($error) unset($_SESSION['f1_login_error']);
       ZONA RESTRINGIDA — SOLO ADMINISTRADOR
     </p>
 
-    <?php if ($error): ?>
+    <?php if ($locked > 0): ?>
+      <div class="alert alert-error" style="margin-bottom:20px;">
+        ⏳ Demasiados intentos fallidos. Probá de nuevo en <?= $locked ?> minuto<?= $locked === 1 ? '' : 's' ?>.
+      </div>
+    <?php elseif ($error): ?>
       <div class="alert alert-error" style="margin-bottom:20px;">
         ❌ Usuario o contraseña incorrectos
       </div>

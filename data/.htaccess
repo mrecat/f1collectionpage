@@ -1,6 +1,43 @@
-# Bloquea acceso directo a la base de datos
-# Las imágenes se sirven a través de PHP, no directamente
-<FilesMatch "\.db$">
-    Order Allow,Deny
-    Deny from all
+# ───────────────────────────────────────────────────────────
+# Esta carpeta guarda la base de datos y las fotos subidas.
+# Nunca debe servir la base ni ejecutar código.
+# ───────────────────────────────────────────────────────────
+
+# 1. La base de datos no se sirve nunca
+<FilesMatch "\.(db|db-journal|db-wal|db-shm|sqlite|sqlite3)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
 </FilesMatch>
+
+# 2. Nada que pueda ejecutarse se sirve ni se interpreta.
+#    Es la red de contención si alguna vez entra un archivo que no es imagen.
+<FilesMatch "\.(?i:php|php[0-9]|phps|phtml|phar|pht|inc|cgi|pl|py|rb|sh|bash|lua|jsp|asp|aspx|exe|so|htaccess|htpasswd)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Allow,Deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# 3. Y por si acaso, acá no corre PHP de ninguna forma
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8 .phar

@@ -1,6 +1,10 @@
 <?php
 requireAdmin();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireCsrf();
+}
+
 $msg = '';
 
 // Guardar texto
@@ -11,16 +15,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['about_text'])) {
 
 // Subir foto
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['about_photo']) && $_FILES['about_photo']['error'] === 0) {
-    $file    = $_FILES['about_photo'];
-    $allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (in_array($file['type'], $allowed)) {
+    $file = $_FILES['about_photo'];
+    // La extensión sale del contenido del archivo, no de su nombre
+    $ext  = validatedImageExtension($file['tmp_name'], (int)$file['size']);
+    if ($ext !== null) {
         $dir = __DIR__ . '/../img/about/';
         if (!is_dir($dir)) mkdir($dir, 0755, true);
-        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
+        // Si la foto anterior tenía otra extensión, la sacamos para no dejarla huérfana
+        foreach (['jpg', 'jpeg', 'png', 'webp', 'gif'] as $prev) {
+            if ($prev !== $ext && file_exists($dir . 'about_photo.' . $prev)) {
+                @unlink($dir . 'about_photo.' . $prev);
+            }
+        }
         $filename = 'about_photo.' . $ext;
         move_uploaded_file($file['tmp_name'], $dir . $filename);
         saveSetting('about_photo', 'img/about/' . $filename);
         $msg = 'photo_saved';
+    } else {
+        $msg = 'photo_error';
     }
 }
 
@@ -46,6 +58,8 @@ $aboutPhoto = getSetting('about_photo');
   <div class="alert alert-success">✅ Foto actualizada correctamente.</div>
 <?php elseif ($msg === 'photo_deleted'): ?>
   <div class="alert alert-success">✅ Foto eliminada.</div>
+<?php elseif ($msg === 'photo_error'): ?>
+  <div class="alert alert-error">❌ Ese archivo no es una imagen JPG, PNG, WEBP o GIF.</div>
 <?php endif; ?>
 
 <div class="about-edit-wrap">
@@ -57,6 +71,7 @@ $aboutPhoto = getSetting('about_photo');
       <?php if ($aboutPhoto): ?>
         <img src="<?= htmlspecialchars($aboutPhoto) ?>" alt="Foto actual" class="about-edit-photo-img">
         <form method="POST">
+          <?= csrfField() ?>
           <button type="submit" name="delete_photo" value="1" class="btn btn-ghost btn-sm" style="margin-top:8px;">🗑️ BORRAR FOTO</button>
         </form>
       <?php else: ?>
@@ -64,6 +79,7 @@ $aboutPhoto = getSetting('about_photo');
       <?php endif; ?>
     </div>
     <form method="POST" enctype="multipart/form-data" class="about-edit-upload">
+      <?= csrfField() ?>
       <label class="about-edit-file-label">
         <input type="file" name="about_photo" accept="image/jpeg,image/png,image/webp" class="about-edit-file-input">
         <span class="btn btn-ghost">📁 ELEGIR FOTO</span>
@@ -77,6 +93,7 @@ $aboutPhoto = getSetting('about_photo');
   <div class="about-edit-section">
     <h3 class="about-edit-title">📝 TEXTO</h3>
     <form method="POST" class="about-edit-text-form">
+      <?= csrfField() ?>
       <textarea name="about_text" class="about-edit-textarea" placeholder="Contá tu historia con la colección..."><?= htmlspecialchars($aboutText) ?></textarea>
       <div class="about-edit-actions">
         <button type="submit" class="btn btn-primary">💾 GUARDAR</button>
